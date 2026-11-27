@@ -1,0 +1,3506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>DOOM: Iron Fist of Latveria — 90s Arcade Fighter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --arcade-gold: #ffd700;
+      --arcade-red: #ff2a2a;
+      --doom-green: #1fa845;
+      --doom-emerald: #0b4f20;
+      --ps1-blue: #1e3799;
+      --crt-scanline: rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: #07070c;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+      overscroll-behavior: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    /* Outer Arcade Bezel */
+    #cabinet-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 1280px;
+      max-height: 860px;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, #11131d 0%, #07080d 100%);
+      border: 4px solid #2b3044;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), inset 0 0 25px rgba(31, 168, 69, 0.25);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    /* Top Arcade Header Strip */
+    #arcade-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: linear-gradient(90deg, #0d1b12 0%, #192236 50%, #241114 100%);
+      border-bottom: 2px solid #353c56;
+      z-index: 20;
+      flex-wrap: wrap;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .marquee-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(10px, 1.8vw, 17px);
+      letter-spacing: 1.2px;
+      background: linear-gradient(180deg, #fff3a1 0%, #ffd700 45%, #e67e00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 10px rgba(255, 215, 0, 0.35);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .retro-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      min-height: 36px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 2px solid #59658a;
+      background: linear-gradient(180deg, #2b334e 0%, #181d2e 100%);
+      color: #f0f4ff;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #0d101a;
+      transition: transform 0.08s ease, border-color 0.15s ease, box-shadow 0.08s ease;
+    }
+
+    .retro-btn:hover {
+      border-color: var(--arcade-gold);
+      color: var(--arcade-gold);
+    }
+
+    .retro-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #0d101a;
+    }
+
+    .retro-btn.active {
+      background: linear-gradient(180deg, #1f8a3c 0%, #104d21 100%);
+      border-color: #5dff87;
+      color: #fff;
+    }
+
+    /* Subtle Non-Blocking Portrait Hint Banner */
+    #portrait-hint {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: linear-gradient(90deg, #1b2845 0%, #274060 100%);
+      border-bottom: 2px solid var(--arcade-gold);
+      padding: 6px 12px;
+      font-size: 8px;
+      line-height: 1.4;
+      color: #ffd700;
+      z-index: 22;
+      flex-shrink: 0;
+    }
+
+    #portrait-hint.dismissed {
+      display: none !important;
+    }
+
+    #btn-dismiss-hint {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      min-height: 30px;
+      min-width: 34px;
+      background: #0e1526;
+      color: #fff;
+      border: 1px solid #ffd700;
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    @media (orientation: portrait) and (max-width: 768px) {
+      #portrait-hint {
+        display: flex;
+      }
+    }
+
+    /* Main Screen Area */
+    #screen-container {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    /* CRT Scanlines & Vignette Overlay */
+    #crt-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      background:
+        linear-gradient(rgba(18, 16, 16, 0) 50%, var(--crt-scanline) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.03));
+      background-size: 100% 4px, 6px 100%;
+      box-shadow: inset 0 0 65px rgba(0, 0, 0, 0.72);
+      transition: opacity 0.25s ease;
+    }
+
+    #crt-overlay.hidden {
+      opacity: 0;
+    }
+
+    /* Interactive Overlay Modals (Command List / Pause) */
+    #modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 7, 14, 0.86);
+      backdrop-filter: blur(4px);
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 760px;
+      max-height: 90%;
+      overflow-y: auto;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+      background: linear-gradient(180deg, #181e30 0%, #0e121e 100%);
+      border: 3px solid var(--arcade-gold);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.3);
+    }
+
+    .modal-box * {
+      touch-action: pan-y;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #353f5e;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .modal-title {
+      font-size: clamp(10px, 1.8vw, 14px);
+      color: var(--arcade-gold);
+    }
+
+    .move-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      font-size: 9px;
+      line-height: 1.7;
+    }
+
+    .move-card {
+      background: rgba(10, 14, 24, 0.85);
+      border: 1px solid #3a4569;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .move-card h4 {
+      margin: 0 0 8px 0;
+      color: #5dff87;
+      font-size: 10px;
+    }
+
+    .key-badge {
+      display: inline-block;
+      background: #2b3452;
+      border: 1px solid #7584b5;
+      color: #ffd700;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 8px;
+    }
+
+    /* Multi-Touch Virtual Arcade Controller */
+    #touch-controls {
+      display: none;
+      background: linear-gradient(180deg, #131724 0%, #090b12 100%);
+      border-top: 2px solid #2e364f;
+      padding: 8px 14px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      z-index: 25;
+      flex-shrink: 0;
+      width: 100%;
+    }
+
+    #touch-controls.visible {
+      display: flex;
+    }
+
+    .arcade-deck-legend {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 5px;
+      font-size: 8px;
+      line-height: 1.45;
+      color: #a5d8ff;
+      background: rgba(10, 14, 24, 0.72);
+      border: 1px solid #2e364f;
+      border-radius: 8px;
+      padding: 7px 10px;
+      min-width: 0;
+    }
+
+    .arcade-deck-legend strong {
+      color: #ffd700;
+    }
+
+    @media (max-width: 960px) {
+      .arcade-deck-legend {
+        display: none;
+      }
+      #touch-controls {
+        padding: 8px 10px;
+        gap: 8px;
+      }
+    }
+
+    .left-controls-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Tactile 4-Way D-Pad Buttons for Easy Mobile Tapping & Double-Tap Dashes */
+    .dpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 42px);
+      grid-template-rows: repeat(3, 38px);
+      gap: 3px;
+    }
+
+    .dpad-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      border-radius: 8px;
+      border: 2px solid #49567a;
+      background: linear-gradient(180deg, #27304a 0%, #141929 100%);
+      color: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 #090b12;
+      cursor: pointer;
+    }
+
+    .dpad-btn.pressed {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #090b12;
+      border-color: #ffd700;
+      color: #ffd700;
+      background: linear-gradient(180deg, #38466b 0%, #1e263d 100%);
+    }
+
+    .dpad-up { grid-column: 2; grid-row: 1; }
+    .dpad-left { grid-column: 1; grid-row: 2; }
+    .dpad-center {
+      grid-column: 2;
+      grid-row: 2;
+      border-radius: 50%;
+      background: #101420;
+      border: 2px solid #2d3652;
+      pointer-events: none;
+    }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+    .dpad-down { grid-column: 2; grid-row: 3; }
+
+    /* 8-Way Virtual Joystick Arena */
+    #virtual-stick-zone {
+      position: relative;
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #1d2438 0%, #0d111c 75%, #07090f 100%);
+      border: 3px solid #49567a;
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.85), 0 4px 12px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stick-crosshair-h {
+      position: absolute;
+      width: 82%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      pointer-events: none;
+    }
+
+    .stick-crosshair-v {
+      position: absolute;
+      width: 2px;
+      height: 82%;
+      background: rgba(255, 255, 255, 0.12);
+      pointer-events: none;
+    }
+
+    .stick-dir-label {
+      position: absolute;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+    }
+    .stick-dir-label.up { top: 8px; }
+    .stick-dir-label.down { bottom: 8px; }
+    .stick-dir-label.left { left: 9px; }
+    .stick-dir-label.right { right: 9px; }
+
+    #virtual-stick-nub {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 30%, #ff5252 0%, #b31212 65%, #5c0606 100%);
+      border: 3px solid #ffd700;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.45);
+      pointer-events: none;
+      transform: translate(0px, 0px);
+      transition: transform 0.04s linear;
+    }
+
+    #virtual-stick-zone.active #virtual-stick-nub {
+      transition: none;
+      filter: brightness(1.18);
+    }
+
+    /* Ergonomic 90s Arcade Attack Buttons */
+    .arcade-buttons-cluster {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(46px, 64px));
+      grid-template-rows: repeat(2, 48px);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pad-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 2px solid #4d587a;
+      background: radial-gradient(circle at 30% 30%, #374160, #191e2e);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      box-shadow: 0 4px 0 #090b12;
+      cursor: pointer;
+    }
+
+    .pad-btn span.sub-lbl {
+      font-size: 6px;
+      opacity: 0.78;
+    }
+
+    .pad-btn.pressed {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #090b12;
+      filter: brightness(1.35);
+    }
+
+    .btn-lp { border-color: #ff6b6b; background: radial-gradient(circle at 30% 30%, #a82828, #4a1010); }
+    .btn-rp { border-color: #ffd93d; background: radial-gradient(circle at 30% 30%, #ad8718, #4a3808); }
+    .btn-lk { border-color: #4dabf7; background: radial-gradient(circle at 30% 30%, #1f68a6, #0d2b47); }
+    .btn-rk { border-color: #51cf66; background: radial-gradient(circle at 30% 30%, #218a3a, #0d3b18); }
+    .btn-sp {
+      border-color: #cc5de8;
+      background: radial-gradient(circle at 30% 30%, #7c2794, #340f40);
+      grid-column: span 2;
+    }
+
+    @keyframes superPulse {
+      0%, 100% {
+        box-shadow: 0 4px 0 #090b12, 0 0 10px #ffd700;
+        border-color: #ffd700;
+        filter: brightness(1.1);
+      }
+      50% {
+        box-shadow: 0 4px 0 #090b12, 0 0 24px #5dff87, 0 0 36px #ffd700;
+        border-color: #5dff87;
+        filter: brightness(1.45);
+      }
+    }
+
+    .btn-sp.super-ready {
+      animation: superPulse 0.75s infinite ease-in-out;
+      background: radial-gradient(circle at 30% 30%, #d97706, #6b1d85);
+      color: #fff9db;
+    }
+
+    /* Compact Landscape Phone Layout */
+    @media (orientation: landscape) and (max-height: 540px) {
+      #cabinet-wrapper {
+        border: none;
+        border-radius: 0;
+      }
+      #arcade-header {
+        padding: 3px 8px;
+      }
+      .retro-btn {
+        min-height: 28px;
+        padding: 4px 7px;
+        font-size: 7px;
+      }
+      #touch-controls {
+        position: absolute;
+        bottom: 4px;
+        left: 0;
+        right: 0;
+        background: transparent;
+        border-top: none;
+        padding: 4px 10px;
+        pointer-events: none;
+      }
+      .left-controls-cluster,
+      .arcade-buttons-cluster {
+        pointer-events: auto;
+        opacity: 0.9;
+      }
+      #virtual-stick-zone {
+        display: none;
+      }
+      .dpad-grid {
+        grid-template-columns: repeat(3, 36px);
+        grid-template-rows: repeat(3, 32px);
+      }
+      .dpad-btn {
+        font-size: 9px;
+      }
+      .arcade-buttons-cluster {
+        grid-template-columns: repeat(3, 44px);
+        grid-template-rows: repeat(2, 40px);
+        gap: 5px;
+      }
+      .pad-btn {
+        min-width: 40px;
+        min-height: 38px;
+        font-size: 7px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      #virtual-stick-zone {
+        display: none;
+      }
+      .dpad-grid {
+        grid-template-columns: repeat(3, 38px);
+        grid-template-rows: repeat(3, 34px);
+      }
+      .arcade-buttons-cluster {
+        grid-template-columns: repeat(3, 44px);
+        grid-template-rows: repeat(2, 42px);
+        gap: 5px;
+      }
+      .pad-btn {
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 8px;
+      }
+    }
+
+    @media (max-width: 820px) {
+      #cabinet-wrapper {
+        border: none;
+        border-radius: 0;
+        max-height: 100dvh;
+      }
+      .retro-btn {
+        font-size: 8px;
+        padding: 6px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="cabinet-wrapper">
+    <!-- Top Arcade Header -->
+    <div id="arcade-header">
+      <div class="marquee-title">DOOM: IRON FIST OF LATVERIA</div>
+      <div class="header-controls">
+        <button id="btn-audio" class="retro-btn active" title="Toggle Retro Synth Audio">SFX: ON</button>
+        <button id="btn-crt" class="retro-btn active" title="Toggle PS1 CRT Scanlines">CRT: ON</button>
+        <button id="btn-pad" class="retro-btn active" title="Toggle On-Screen Arcade Controls">PAD: ON</button>
+        <button id="btn-moves" class="retro-btn" title="View Move List & Controls">MOVES</button>
+      </div>
+    </div>
+
+    <!-- Subtle Non-Blocking Portrait Hint Banner -->
+    <div id="portrait-hint">
+      <span>ROTATE TO LANDSCAPE FOR FULL ARCADE VIEW</span>
+      <button id="btn-dismiss-hint" aria-label="Dismiss orientation hint">✕</button>
+    </div>
+
+    <!-- Main Fighting Canvas -->
+    <div id="screen-container">
+      <canvas id="gameCanvas"></canvas>
+      <div id="crt-overlay"></div>
+
+      <!-- Command List & Pause Modal -->
+      <div id="modal-backdrop">
+        <div class="modal-box">
+          <div class="modal-header">
+            <div class="modal-title">COMMAND LIST &amp; SYSTEM MANUAL</div>
+            <button id="btn-close-modal" class="retro-btn">RESUME [ESC]</button>
+          </div>
+          <div class="move-grid">
+            <div class="move-card">
+              <h4>PLAYER 1 CONTROLS</h4>
+              <div>Move / Crouch / Jump: <span class="key-badge">W A S D</span> or <span class="key-badge">ARROWS</span></div>
+              <div>Dash Forward / Back: <span class="key-badge">Double-Tap &rarr; / &larr;</span></div>
+              <div>Stand Block / Low Block: <span class="key-badge">Hold Back</span> / <span class="key-badge">Down-Back</span></div>
+              <div>Left Punch (LP): <span class="key-badge">J</span> or <span class="key-badge">Z</span></div>
+              <div>Right Punch (RP): <span class="key-badge">K</span> or <span class="key-badge">X</span></div>
+              <div>Left Kick (LK): <span class="key-badge">U</span> or <span class="key-badge">A</span></div>
+              <div>Right Kick (RK): <span class="key-badge">I</span> or <span class="key-badge">S</span></div>
+              <div>Signature Special / Super: <span class="key-badge">L</span> or <span class="key-badge">C</span></div>
+            </div>
+            <div class="move-card">
+              <h4>TEKKEN COMBAT SYSTEM</h4>
+              <div>&bull; <strong>3-Hit Jab String:</strong> <span class="key-badge">LP &rarr; LP &rarr; RP</span> (Knockdown!)</div>
+              <div>&bull; <strong>Uppercut Launcher:</strong> <span class="key-badge">Down + RP</span> (Launches foe into air for Juggles!)</div>
+              <div>&bull; <strong>Low Sweep:</strong> <span class="key-badge">Down + RK</span> (Hits standing blockers!)</div>
+              <div>&bull; <strong>Aerial Foot Dive / Slam:</strong> <span class="key-badge">In Air + RK/SP</span></div>
+              <div>&bull; <strong>Signature Projectile/Rush:</strong> <span class="key-badge">SP</span> (Uses 25% Meter)</div>
+              <div>&bull; <strong>CINEMATIC SUPER ART:</strong> <span class="key-badge">Down + SP</span> at 100% MAX METER!</div>
+            </div>
+            <div class="move-card">
+              <h4>CHARACTER SIGNATURE ARTS</h4>
+              <div><strong style="color:#5dff87;">DOCTOR DOOM:</strong> Plasma Beam (SP) &bull; Photon Array Super (Down+SP) &bull; Doom Foot Dive (Air+RK)</div>
+              <div><strong style="color:#ff5e5e;">IRON MAN:</strong> Repulsor Blast (SP) &bull; Proton Unibeam Super (Down+SP)</div>
+              <div><strong style="color:#4dabf7;">CAPTAIN AMERICA:</strong> Shield Slash (SP) &bull; Final Justice Super (Down+SP)</div>
+              <div><strong style="color:#ffd43b;">THOR:</strong> Mjolnir Lightning (SP) &bull; God Blast Super (Down+SP)</div>
+              <div><strong style="color:#69db7c;">THE HULK:</strong> Gamma Boulder (SP) &bull; Gamma Crush Super (Down+SP)</div>
+            </div>
+            <div class="move-card">
+              <h4>2P LOCAL VERSUS CONTROLS</h4>
+              <div>If 2P VERSUS is selected on Title Screen:</div>
+              <div><strong>P1:</strong> <span class="key-badge">W A S D</span> + <span class="key-badge">F G R T Y</span></div>
+              <div><strong>P2:</strong> <span class="key-badge">ARROWS</span> + <span class="key-badge">J K U I L</span></div>
+              <div style="margin-top:8px; color:#ffd700;">Press <span class="key-badge">ENTER</span> or click buttons on Title/Select screen to start!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Touch Virtual Arcade Controller -->
+    <div id="touch-controls" class="visible">
+      <div class="left-controls-cluster">
+        <!-- Tactile 4-Way D-Pad Buttons -->
+        <div class="dpad-grid" aria-label="Directional Pad Buttons">
+          <button class="pad-btn dpad-btn dpad-up" data-key="ArrowUp" aria-label="Jump">▲</button>
+          <button class="pad-btn dpad-btn dpad-left" data-key="ArrowLeft" aria-label="Move Left">◀</button>
+          <div class="dpad-center"></div>
+          <button class="pad-btn dpad-btn dpad-right" data-key="ArrowRight" aria-label="Move Right">▶</button>
+          <button class="pad-btn dpad-btn dpad-down" data-key="ArrowDown" aria-label="Crouch">▼</button>
+        </div>
+
+        <!-- 8-Way Analog Arcade Stick -->
+        <div id="virtual-stick-zone" aria-label="8-Way Virtual Arcade Stick">
+          <div class="stick-crosshair-h"></div>
+          <div class="stick-crosshair-v"></div>
+          <span class="stick-dir-label up">▲</span>
+          <span class="stick-dir-label down">▼</span>
+          <span class="stick-dir-label left">◀</span>
+          <span class="stick-dir-label right">▶</span>
+          <div id="virtual-stick-nub"></div>
+        </div>
+      </div>
+
+      <div class="arcade-deck-legend">
+        <div><strong>MOVE:</strong> WASD / ARROWS &bull; <strong>GUARD:</strong> HOLD BACK</div>
+        <div><strong>COMBO:</strong> LP &rarr; LP &rarr; RP &bull; <strong>LAUNCHER:</strong> DOWN + RP</div>
+        <div><strong>SUPER ART:</strong> DOWN + SP (AT 100% METER)</div>
+      </div>
+
+      <div class="arcade-buttons-cluster">
+        <button class="pad-btn btn-lp" data-key="KeyJ"><span>LP [J]</span><span class="sub-lbl">JAB</span></button>
+        <button class="pad-btn btn-rp" data-key="KeyK"><span>RP [K]</span><span class="sub-lbl">CROSS</span></button>
+        <button class="pad-btn btn-lk" data-key="KeyU"><span>LK [U]</span><span class="sub-lbl">KICK</span></button>
+        <button class="pad-btn btn-rk" data-key="KeyI"><span>RK [I]</span><span class="sub-lbl">SWEEP</span></button>
+        <button id="btn-touch-sp" class="pad-btn btn-sp" data-key="KeyL"><span>SP / SUPER [L]</span><span class="sub-lbl">DOWN+SP = MAX</span></button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/**
+ * ============================================================================
+ * DOOM: IRON FIST OF LATVERIA
+ * A Retro 90s PS1 / Arcade Tekken-Style Fighting Game
+ * Single-File HTML5 Canvas + Web Audio API Synthesizer Engine
+ * ============================================================================
+ */
+
+(function () {
+  'use strict';
+
+  // ==========================================================================
+  // 1. CANVAS & CORE ENGINE CONSTANTS
+  // ==========================================================================
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const LOGICAL_W = 960;
+  const LOGICAL_H = 540;
+  canvas.width = LOGICAL_W;
+  canvas.height = LOGICAL_H;
+
+  const FLOOR_Y = 456;
+  const GRAVITY = 0.72;
+  const STAGE_MIN_X = 72;
+  const STAGE_MAX_X = LOGICAL_W - 72;
+
+  // ==========================================================================
+  // 2. RETRO 90s ARCADE WEB AUDIO SYNTHESIZER
+  // ==========================================================================
+  class RetroAudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.enabled = true;
+      this.bgmTimer = null;
+      this.bgmMode = null;
+      this.step = 0;
+    }
+
+    init() {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+        }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+    }
+
+    toggle() {
+      this.enabled = !this.enabled;
+      if (!this.enabled) {
+        this.stopBGM();
+      } else if (this.bgmMode) {
+        this.startBGM(this.bgmMode);
+      }
+      return this.enabled;
+    }
+
+    playTone(freq, type = 'square', duration = 0.12, gainVal = 0.12, slideTo = null) {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), now + duration);
+      }
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+    }
+
+    playNoise(duration = 0.14, gainVal = 0.16) {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 900;
+
+      const gain = this.ctx.createGain();
+      const now = this.ctx.currentTime;
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start(now);
+    }
+
+    sfxMenuMove() { this.playTone(520, 'square', 0.06, 0.08, 660); }
+    sfxMenuSelect() { this.playTone(440, 'square', 0.14, 0.12, 880); }
+    sfxWhiff() { this.playNoise(0.07, 0.07); }
+    sfxHitLight() {
+      this.playNoise(0.09, 0.16);
+      this.playTone(190, 'sawtooth', 0.09, 0.14, 65);
+    }
+    sfxHitHeavy() {
+      this.playNoise(0.16, 0.24);
+      this.playTone(140, 'sawtooth', 0.18, 0.2, 42);
+    }
+    sfxBlock() {
+      this.playTone(760, 'triangle', 0.08, 0.14, 380);
+    }
+    sfxBeam() {
+      this.playTone(780, 'sawtooth', 0.22, 0.15, 220);
+    }
+    sfxSuperActivate() {
+      this.playTone(220, 'sawtooth', 0.35, 0.18, 980);
+      setTimeout(() => this.playTone(440, 'square', 0.35, 0.18, 1320), 90);
+    }
+    sfxAnnouncer(type) {
+      if (type === 'ROUND') {
+        this.playTone(330, 'sawtooth', 0.14, 0.14);
+        setTimeout(() => this.playTone(440, 'sawtooth', 0.22, 0.14), 130);
+      } else if (type === 'FIGHT') {
+        this.playTone(587, 'square', 0.26, 0.16, 784);
+      } else if (type === 'KO') {
+        this.playNoise(0.32, 0.26);
+        this.playTone(220, 'sawtooth', 0.45, 0.22, 48);
+      }
+    }
+
+    startBGM(mode) {
+      this.bgmMode = mode;
+      this.stopBGM();
+      if (!this.enabled) return;
+
+      const titleNotes = [146.83, 146.83, 174.61, 196.0, 220.0, 196.0, 174.61, 130.81];
+      const fightNotes = [110.0, 110.0, 130.81, 146.83, 164.81, 146.83, 130.81, 98.0];
+      this.step = 0;
+
+      this.bgmTimer = setInterval(() => {
+        if (!this.enabled || game.paused) return;
+        const seq = mode === 'FIGHT' ? fightNotes : titleNotes;
+        const note = seq[this.step % seq.length];
+        this.playTone(note, 'triangle', 0.16, 0.045);
+        if (this.step % 4 === 0) {
+          this.playTone(note * 0.5, 'sawtooth', 0.18, 0.035);
+        }
+        this.step++;
+      }, mode === 'FIGHT' ? 185 : 240);
+    }
+
+    stopBGM() {
+      if (this.bgmTimer) {
+        clearInterval(this.bgmTimer);
+        this.bgmTimer = null;
+      }
+    }
+  }
+
+  const audio = new RetroAudioEngine();
+
+  // ==========================================================================
+  // 3. ROSTER DATA & GAME STATE
+  // ==========================================================================
+  const ROSTER = {
+    DOOM: {
+      id: 'DOOM',
+      name: 'DOCTOR DOOM',
+      shortName: 'DOOM',
+      title: 'MONARCH OF LATVERIA',
+      maxHp: 1050,
+      walkSpeed: 4.3,
+      jumpVel: -15.4,
+      scale: 1.04,
+      primaryColor: '#1fa845',
+      secondaryColor: '#9aa7b8',
+      accentColor: '#ffd700',
+      eyeColor: '#ff2a2a',
+      stage: 'CASTLE_DOOM',
+      specialName: 'PLASMA BEAM',
+      superName: 'PHOTON ARRAY',
+      winQuote: 'KNEEL BEFORE DOOM, PATHETIC HEROES!'
+    },
+    CAPTAIN_AMERICA: {
+      id: 'CAPTAIN_AMERICA',
+      name: 'CAPTAIN AMERICA',
+      shortName: 'CAP. AMERICA',
+      title: 'THE FIRST AVENGER',
+      maxHp: 1000,
+      walkSpeed: 4.6,
+      jumpVel: -15.8,
+      scale: 1.0,
+      primaryColor: '#1c5bbf',
+      secondaryColor: '#d92626',
+      accentColor: '#ffffff',
+      eyeColor: '#ffffff',
+      stage: 'AVENGERS_TOWER',
+      specialName: 'SHIELD SLASH',
+      superName: 'FINAL JUSTICE',
+      winQuote: 'FREEDOM WILL ALWAYS STAND AGAINST TYRANNY!'
+    },
+    IRON_MAN: {
+      id: 'IRON_MAN',
+      name: 'IRON MAN',
+      shortName: 'IRON MAN',
+      title: 'INVINCIBLE AVENGER',
+      maxHp: 980,
+      walkSpeed: 4.8,
+      jumpVel: -16.0,
+      scale: 1.0,
+      primaryColor: '#c91e1e',
+      secondaryColor: '#f5b800',
+      accentColor: '#5ce1e6',
+      eyeColor: '#5ce1e6',
+      stage: 'AVENGERS_TOWER',
+      specialName: 'REPULSOR BLAST',
+      superName: 'PROTON UNIBEAM',
+      winQuote: 'NICE ARMOR, VICTOR—MINE HAS BETTER UPGRADES.'
+    },
+    THOR: {
+      id: 'THOR',
+      name: 'THOR ODINSON',
+      shortName: 'THOR',
+      title: 'GOD OF THUNDER',
+      maxHp: 1100,
+      walkSpeed: 4.2,
+      jumpVel: -15.5,
+      scale: 1.08,
+      primaryColor: '#1e2738',
+      secondaryColor: '#b81d1d',
+      accentColor: '#74c0fc',
+      eyeColor: '#74c0fc',
+      stage: 'BIFROST',
+      specialName: 'MJOLNIR BOLT',
+      superName: 'ASGARDIAN GOD BLAST',
+      winQuote: 'BY ODIN’S BEARD, LATVERIA SHALL TROUBLE ASGARD NO MORE!'
+    },
+    HULK: {
+      id: 'HULK',
+      name: 'THE HULK',
+      shortName: 'THE HULK',
+      title: 'GAMMA JUGGERNAUT',
+      maxHp: 1220,
+      walkSpeed: 3.8,
+      jumpVel: -15.2,
+      scale: 1.18,
+      primaryColor: '#2f9e44',
+      secondaryColor: '#5f3dc4',
+      accentColor: '#b2f2bb',
+      eyeColor: '#b2f2bb',
+      stage: 'BIFROST',
+      specialName: 'GAMMA BOULDER',
+      superName: 'GAMMA CRUSH',
+      winQuote: 'TIN MAN CRUSHED! HULK STRONGEST THERE IS!'
+    }
+  };
+
+  const ROSTER_KEYS = Object.keys(ROSTER);
+  const ARCADE_LADDER = ['CAPTAIN_AMERICA', 'IRON_MAN', 'THOR', 'HULK'];
+
+  const game = {
+    state: 'TITLE', // 'TITLE', 'SELECT', 'VS_INTRO', 'FIGHT', 'ROUND_OVER', 'MATCH_OVER', 'ARCADE_CLEAR'
+    mode: 'ARCADE', // 'ARCADE', 'VERSUS_CPU', 'VERSUS_2P'
+    paused: false,
+    frame: 0,
+    titleOption: 0,
+    selectPhase: 1,
+    selectCursorP1: 0,
+    selectCursorP2: 1,
+    ladderIndex: 0,
+    p1CharId: 'DOOM',
+    p2CharId: 'CAPTAIN_AMERICA',
+    stageId: 'CASTLE_DOOM',
+    p1: null,
+    p2: null,
+    p1Wins: 0,
+    p2Wins: 0,
+    roundNumber: 1,
+    roundTimer: 60,
+    timerTick: 0,
+    stateTimer: 0,
+    hitStop: 0,
+    slowMoTimer: 0,
+    superFlashTimer: 0,
+    superUser: null,
+    shakeTime: 0,
+    shakeIntensity: 0,
+    cameraX: LOGICAL_W / 2,
+    cameraZoom: 1.0,
+    announcerText: '',
+    announcerSub: '',
+    announcerTimer: 0,
+    projectiles: [],
+    particles: [],
+    floatingTexts: []
+  };
+
+  // ==========================================================================
+  // 4. INPUT MANAGER (KEYBOARD + MULTI-TOUCH STICK & ARCADE BUTTONS)
+  // ==========================================================================
+  const keysDown = {};
+  const keysJustPressed = {};
+  const lastTapTime = {};
+  const dashTrigger = { p1: 0, p2: 0 };
+
+  function setVirtualKey(code, isDown) {
+    if (isDown) {
+      if (!keysDown[code]) {
+        keysJustPressed[code] = true;
+        const now = performance.now();
+        if (lastTapTime[code] && now - lastTapTime[code] < 260) {
+          if (code === 'ArrowRight' || code === 'KeyD') dashTrigger.p1 = 1;
+          if (code === 'ArrowLeft' || code === 'KeyA') dashTrigger.p1 = -1;
+        }
+        lastTapTime[code] = now;
+      }
+      keysDown[code] = true;
+    } else {
+      keysDown[code] = false;
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+      e.preventDefault();
+    }
+
+    if (e.code === 'Escape') {
+      toggleModal();
+      return;
+    }
+
+    if (!keysDown[e.code]) {
+      keysJustPressed[e.code] = true;
+      const now = performance.now();
+
+      // Double-tap dash detection
+      if (lastTapTime[e.code] && now - lastTapTime[e.code] < 240) {
+        if (game.mode === 'VERSUS_2P') {
+          if (e.code === 'KeyD') dashTrigger.p1 = 1;
+          if (e.code === 'KeyA') dashTrigger.p1 = -1;
+          if (e.code === 'ArrowRight') dashTrigger.p2 = 1;
+          if (e.code === 'ArrowLeft') dashTrigger.p2 = -1;
+        } else {
+          if (e.code === 'KeyD' || e.code === 'ArrowRight') dashTrigger.p1 = 1;
+          if (e.code === 'KeyA' || e.code === 'ArrowLeft') dashTrigger.p1 = -1;
+        }
+      }
+      lastTapTime[e.code] = now;
+    }
+    keysDown[e.code] = true;
+  });
+
+  window.addEventListener('keyup', (e) => {
+    keysDown[e.code] = false;
+  });
+
+  // 8-Way Multi-Touch Virtual Joystick (supports diagonal jump/crouch-block + double-tap dash)
+  const stickZone = document.getElementById('virtual-stick-zone');
+  const stickNub = document.getElementById('virtual-stick-nub');
+  let stickPointerId = null;
+
+  function updateVirtualStick(clientX, clientY) {
+    const rect = stickZone.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const maxRadius = rect.width * 0.36;
+
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > maxRadius) {
+      dx = (dx / dist) * maxRadius;
+      dy = (dy / dist) * maxRadius;
+    }
+
+    stickNub.style.transform = `translate(${dx}px, ${dy}px)`;
+
+    const deadzone = maxRadius * 0.32;
+    const left = dx < -deadzone;
+    const right = dx > deadzone;
+    const up = dy < -deadzone;
+    const down = dy > deadzone;
+
+    setVirtualKey('ArrowLeft', left);
+    setVirtualKey('ArrowRight', right);
+    setVirtualKey('ArrowUp', up);
+    setVirtualKey('ArrowDown', down);
+  }
+
+  function resetVirtualStick() {
+    stickPointerId = null;
+    stickZone.classList.remove('active');
+    stickNub.style.transform = 'translate(0px, 0px)';
+    setVirtualKey('ArrowLeft', false);
+    setVirtualKey('ArrowRight', false);
+    setVirtualKey('ArrowUp', false);
+    setVirtualKey('ArrowDown', false);
+  }
+
+  stickZone.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    audio.init();
+    if (stickPointerId !== null) return;
+    stickPointerId = e.pointerId;
+    stickZone.setPointerCapture(e.pointerId);
+    stickZone.classList.add('active');
+    updateVirtualStick(e.clientX, e.clientY);
+  });
+
+  stickZone.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== stickPointerId) return;
+    e.preventDefault();
+    updateVirtualStick(e.clientX, e.clientY);
+  });
+
+  stickZone.addEventListener('pointerup', (e) => {
+    if (e.pointerId !== stickPointerId) return;
+    e.preventDefault();
+    resetVirtualStick();
+  });
+
+  stickZone.addEventListener('pointercancel', (e) => {
+    if (e.pointerId !== stickPointerId) return;
+    resetVirtualStick();
+  });
+
+  // Multi-Touch Arcade Action Buttons (simultaneous hold/press with stick)
+  const activeButtonPointers = new Map();
+
+  document.querySelectorAll('.pad-btn').forEach((btn) => {
+    const code = btn.getAttribute('data-key');
+
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      audio.init();
+      btn.setPointerCapture(e.pointerId);
+      activeButtonPointers.set(e.pointerId, { btn, code });
+      btn.classList.add('pressed');
+      setVirtualKey(code, true);
+    });
+
+    const endBtnTouch = (e) => {
+      const entry = activeButtonPointers.get(e.pointerId);
+      if (!entry) return;
+      activeButtonPointers.delete(e.pointerId);
+      entry.btn.classList.remove('pressed');
+      // Only release key if no other finger is holding the same button
+      let stillHeld = false;
+      activeButtonPointers.forEach((v) => {
+        if (v.code === entry.code) stillHeld = true;
+      });
+      if (!stillHeld) {
+        setVirtualKey(entry.code, false);
+      }
+    };
+
+    btn.addEventListener('pointerup', endBtnTouch);
+    btn.addEventListener('pointercancel', endBtnTouch);
+  });
+
+  function clearJustPressed() {
+    for (const k in keysJustPressed) {
+      delete keysJustPressed[k];
+    }
+    dashTrigger.p1 = 0;
+    dashTrigger.p2 = 0;
+  }
+
+  // ==========================================================================
+  // 5. VISUAL EFFECTS: PARTICLES, PROJECTILES & ANNOUNCER
+  // ==========================================================================
+  function triggerShake(intensity, frames) {
+    game.shakeIntensity = Math.max(game.shakeIntensity, intensity);
+    game.shakeTime = Math.max(game.shakeTime, frames);
+  }
+
+  function showAnnouncer(text, sub = '', duration = 75) {
+    game.announcerText = text;
+    game.announcerSub = sub;
+    game.announcerTimer = duration;
+  }
+
+  function spawnParticles(x, y, color, count = 14, speed = 7, type = 'SPARK') {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = (0.3 + Math.random() * 0.8) * speed;
+      game.particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd - (type === 'DEBRIS' ? 3 : 0),
+        size: type === 'RING' ? 12 : 3 + Math.random() * 5,
+        color,
+        life: 16 + Math.floor(Math.random() * 14),
+        maxLife: 30,
+        type
+      });
+    }
+  }
+
+  function spawnFloatingText(x, y, text, color = '#ffd700') {
+    game.floatingTexts.push({
+      x,
+      y,
+      text,
+      color,
+      life: 48
+    });
+  }
+
+  function spawnProjectile(owner, x, y, dir, style, isSuper = false) {
+    game.projectiles.push({
+      owner,
+      x,
+      y,
+      vx: dir * (isSuper ? 14.5 : 10.5),
+      vy: 0,
+      dir,
+      style, // 'DOOM_PLASMA', 'CAP_SHIELD', 'IRON_BEAM', 'THOR_BOLT', 'HULK_BOULDER'
+      isSuper,
+      radius: isSuper ? 44 : 24,
+      damage: isSuper ? 195 : 85,
+      life: isSuper ? 85 : 65,
+      hitDone: false,
+      spin: 0
+    });
+  }
+
+  // ==========================================================================
+  // 6. FIGHTER CLASS (TEKKEN COMBAT + ARTICULATED RIGS + AI)
+  // ==========================================================================
+  const MOVE_DATA = {
+    LP: {
+      name: 'LEFT JAB',
+      startup: 5, active: 5, recovery: 8,
+      damage: 42, hitstun: 14, blockstun: 9,
+      pushback: 4.5, reach: 82, height: 'HIGH',
+      launchY: 0, meterGain: 9, hitStop: 4
+    },
+    LP2: {
+      name: 'DOUBLE JAB',
+      startup: 5, active: 5, recovery: 9,
+      damage: 48, hitstun: 15, blockstun: 10,
+      pushback: 5.2, reach: 86, height: 'HIGH',
+      launchY: 0, meterGain: 10, hitStop: 4
+    },
+    RP_FINISHER: {
+      name: 'LATVERIAN STRAIGHT',
+      startup: 7, active: 6, recovery: 15,
+      damage: 78, hitstun: 26, blockstun: 14,
+      pushback: 11.5, reach: 96, height: 'MID',
+      launchY: -6.5, knockdown: true, meterGain: 15, hitStop: 7
+    },
+    RP: {
+      name: 'HEAVY CROSS',
+      startup: 8, active: 6, recovery: 13,
+      damage: 68, hitstun: 18, blockstun: 12,
+      pushback: 7.0, reach: 90, height: 'MID',
+      launchY: 0, meterGain: 12, hitStop: 6
+    },
+    LAUNCHER: {
+      name: 'RISING UPPERCUT',
+      startup: 9, active: 7, recovery: 18,
+      damage: 85, hitstun: 34, blockstun: 14,
+      pushback: 4.5, reach: 85, height: 'MID',
+      launchY: -14.8, juggle: true, meterGain: 16, hitStop: 8
+    },
+    LK: {
+      name: 'SNAP KICK',
+      startup: 7, active: 6, recovery: 11,
+      damage: 58, hitstun: 16, blockstun: 11,
+      pushback: 6.5, reach: 95, height: 'MID',
+      launchY: 0, meterGain: 11, hitStop: 5
+    },
+    RK: {
+      name: 'ROUNDHOUSE',
+      startup: 10, active: 7, recovery: 16,
+      damage: 88, hitstun: 24, blockstun: 14,
+      pushback: 10.5, reach: 104, height: 'HIGH',
+      launchY: -5.5, knockdown: true, meterGain: 15, hitStop: 7
+    },
+    LOW_SWEEP: {
+      name: 'IRON SWEEP',
+      startup: 9, active: 7, recovery: 17,
+      damage: 72, hitstun: 26, blockstun: 13,
+      pushback: 6.0, reach: 102, height: 'LOW',
+      launchY: -5.0, knockdown: true, meterGain: 14, hitStop: 6
+    },
+    AIR_STRIKE: {
+      name: 'FOOT DIVE / SLAM',
+      startup: 6, active: 14, recovery: 10,
+      damage: 82, hitstun: 22, blockstun: 14,
+      pushback: 8.0, reach: 92, height: 'MID',
+      launchY: 2.0, knockdown: true, meterGain: 14, hitStop: 7
+    },
+    SPECIAL: {
+      name: 'SIGNATURE ART',
+      startup: 12, active: 8, recovery: 18,
+      damage: 85, hitstun: 22, blockstun: 14,
+      pushback: 9.0, reach: 110, height: 'MID',
+      isProjectile: true, meterCost: 25, meterGain: 0, hitStop: 6
+    },
+    SUPER: {
+      name: 'ULTIMATE HYPER',
+      startup: 14, active: 14, recovery: 22,
+      damage: 210, hitstun: 36, blockstun: 20,
+      pushback: 15.0, reach: 150, height: 'MID',
+      isProjectile: true, isSuper: true, knockdown: true, meterCost: 100, meterGain: 0, hitStop: 10
+    }
+  };
+
+  class Fighter {
+    constructor(charId, slot, isAI = false) {
+      this.spec = ROSTER[charId];
+      this.charId = charId;
+      this.slot = slot; // 1 or 2
+      this.isAI = isAI;
+      this.resetForRound();
+    }
+
+    resetForRound() {
+      this.x = this.slot === 1 ? 300 : 660;
+      this.y = FLOOR_Y;
+      this.vx = 0;
+      this.vy = 0;
+      this.facing = this.slot === 1 ? 1 : -1;
+      this.hp = this.spec.maxHp;
+      this.trailHp = this.spec.maxHp;
+      this.meter = 35; // Start with partial meter for fun arcade pacing
+      this.state = 'IDLE'; // 'IDLE','WALK','CROUCH','JUMP','DASH','ATTACK','BLOCK','HITSTUN','KNOCKDOWN','VICTORY','DEFEAT'
+      this.stateFrame = 0;
+      this.crouching = false;
+      this.blocking = false;
+      this.currentMove = null;
+      this.moveFrame = 0;
+      this.moveHasHit = false;
+      this.comboChainStep = 0;
+      this.comboCount = 0;
+      this.comboDamage = 0;
+      this.comboDisplayTimer = 0;
+      this.juggled = false;
+      this.invulnTimer = 0;
+      this.aiDecisionTimer = 0;
+      this.aiAction = 'NEUTRAL';
+    }
+
+    get isGrounded() {
+      return this.y >= FLOOR_Y - 0.5;
+    }
+
+    get hurtbox() {
+      const h = this.crouching ? 95 : 148;
+      const w = 58 * this.spec.scale;
+      return {
+        x: this.x - w / 2,
+        y: this.y - h,
+        w,
+        h
+      };
+    }
+
+    readInputs() {
+      if (this.isAI) {
+        return this.computeAIInputs();
+      }
+
+      const inp = {
+        left: false, right: false, up: false, down: false,
+        lp: false, rp: false, lk: false, rk: false, sp: false,
+        dash: 0
+      };
+
+      if (game.mode === 'VERSUS_2P') {
+        if (this.slot === 1) {
+          inp.left = !!keysDown['KeyA'];
+          inp.right = !!keysDown['KeyD'];
+          inp.up = !!keysDown['KeyW'];
+          inp.down = !!keysDown['KeyS'];
+          inp.lp = !!keysJustPressed['KeyF'];
+          inp.rp = !!keysJustPressed['KeyG'];
+          inp.lk = !!keysJustPressed['KeyR'];
+          inp.rk = !!keysJustPressed['KeyT'];
+          inp.sp = !!keysJustPressed['KeyY'];
+          inp.dash = dashTrigger.p1;
+        } else {
+          inp.left = !!keysDown['ArrowLeft'];
+          inp.right = !!keysDown['ArrowRight'];
+          inp.up = !!keysDown['ArrowUp'];
+          inp.down = !!keysDown['ArrowDown'];
+          inp.lp = !!keysJustPressed['KeyJ'];
+          inp.rp = !!keysJustPressed['KeyK'];
+          inp.lk = !!keysJustPressed['KeyU'];
+          inp.rk = !!keysJustPressed['KeyI'];
+          inp.sp = !!keysJustPressed['KeyL'];
+          inp.dash = dashTrigger.p2;
+        }
+      } else {
+        // Single player P1 accepts WASD/Arrows + J/K/U/I/L or Z/X/A/S/C
+        if (this.slot === 1) {
+          inp.left = !!(keysDown['KeyA'] || keysDown['ArrowLeft']);
+          inp.right = !!(keysDown['KeyD'] || keysDown['ArrowRight']);
+          inp.up = !!(keysDown['KeyW'] || keysDown['ArrowUp']);
+          inp.down = !!(keysDown['KeyS'] || keysDown['ArrowDown']);
+          inp.lp = !!(keysJustPressed['KeyJ'] || keysJustPressed['KeyZ']);
+          inp.rp = !!(keysJustPressed['KeyK'] || keysJustPressed['KeyX']);
+          inp.lk = !!(keysJustPressed['KeyU'] || keysJustPressed['KeyA']);
+          inp.rk = !!(keysJustPressed['KeyI'] || keysJustPressed['KeyS']);
+          inp.sp = !!(keysJustPressed['KeyL'] || keysJustPressed['KeyC']);
+          inp.dash = dashTrigger.p1;
+        }
+      }
+      return inp;
+    }
+
+    computeAIInputs() {
+      const opp = this.slot === 1 ? game.p2 : game.p1;
+      const inp = {
+        left: false, right: false, up: false, down: false,
+        lp: false, rp: false, lk: false, rk: false, sp: false,
+        dash: 0
+      };
+      if (!opp || game.state !== 'FIGHT') return inp;
+
+      const dx = opp.x - this.x;
+      const dist = Math.abs(dx);
+      const difficulty = 0.45 + game.ladderIndex * 0.16; // Scales across Avengers ladder
+      const awayLeft = dx > 0;
+      const awayRight = dx < 0;
+
+      // Keep AI within stage bounds so it doesn't get stuck backing into corners
+      const nearLeftEdge = this.x <= STAGE_MIN_X + 26;
+      const nearRightEdge = this.x >= STAGE_MAX_X - 26;
+
+      // Track multi-step jab string state cleanly across frames
+      if (this.aiAction === 'JAB_STRING') {
+        if (this.state === 'ATTACK') {
+          if (this.currentMove === 'LP' && this.moveFrame >= 6 && this.moveFrame <= 11) {
+            inp.lp = true;
+          } else if (this.currentMove === 'LP2' && this.moveFrame >= 6 && this.moveFrame <= 12) {
+            inp.rp = true;
+          } else if (this.currentMove === 'RP_FINISHER' && this.moveFrame > 10) {
+            this.aiAction = 'NEUTRAL';
+            this.aiDecisionTimer = 8;
+          }
+        } else if (this.stateFrame > 14) {
+          this.aiAction = 'NEUTRAL';
+        }
+      }
+
+      this.aiDecisionTimer--;
+      if (this.aiDecisionTimer <= 0) {
+        this.aiDecisionTimer = Math.max(8, Math.floor(20 - difficulty * 8 + Math.random() * 10));
+        const r = Math.random();
+
+        // Reactive defense when opponent attacks nearby
+        if (opp.state === 'ATTACK' && dist < 145 && r < difficulty * 0.72) {
+          this.aiAction = 'BLOCK';
+        } else if (this.meter >= 100 && dist < 380 && r < 0.5) {
+          this.aiAction = 'SUPER';
+        } else if (dist > 230) {
+          if (this.meter >= 25 && r < 0.36) {
+            this.aiAction = 'SPECIAL';
+          } else if (r < 0.68) {
+            this.aiAction = 'APPROACH';
+          } else {
+            this.aiAction = 'DASH_IN';
+          }
+        } else if (dist > 105) {
+          if (r < 0.45) this.aiAction = 'APPROACH';
+          else if (r < 0.66 && this.meter >= 25) this.aiAction = 'SPECIAL';
+          else if (r < 0.82) this.aiAction = 'JUMP_IN';
+          else this.aiAction = 'RETREAT';
+        } else {
+          // Close quarters Tekken mixups
+          if (r < 0.30) {
+            this.aiAction = 'JAB_STRING';
+            inp.lp = true;
+          } else if (r < 0.48) {
+            this.aiAction = 'LAUNCHER';
+          } else if (r < 0.66) {
+            this.aiAction = 'LOW_SWEEP';
+          } else if (r < 0.82) {
+            this.aiAction = 'HEAVY_KICK';
+          } else {
+            this.aiAction = 'BLOCK';
+          }
+        }
+      }
+
+      if (this.aiAction === 'APPROACH') {
+        if (dx > 0) inp.right = true;
+        else inp.left = true;
+      } else if (this.aiAction === 'RETREAT') {
+        if (awayLeft && !nearLeftEdge) inp.left = true;
+        else if (awayRight && !nearRightEdge) inp.right = true;
+        else {
+          // Cornered: fight or jump out instead of getting trapped
+          if (dx > 0) inp.right = true;
+          else inp.left = true;
+          if (Math.random() < 0.35) inp.up = true;
+        }
+      } else if (this.aiAction === 'BLOCK') {
+        if (awayLeft && !nearLeftEdge) inp.left = true;
+        else if (awayRight && !nearRightEdge) inp.right = true;
+        if (Math.random() < 0.25) inp.down = true;
+      } else if (this.aiAction === 'DASH_IN') {
+        inp.dash = dx > 0 ? 1 : -1;
+        this.aiAction = 'APPROACH';
+      } else if (this.aiAction === 'JUMP_IN') {
+        inp.up = true;
+        if (dx > 0) inp.right = true;
+        else inp.left = true;
+        this.aiAction = 'APPROACH';
+      } else if (this.aiAction === 'JAB_STRING') {
+        if (this.state !== 'ATTACK' && this.moveFrame === 0) {
+          inp.lp = true;
+        }
+      } else if (this.aiAction === 'LAUNCHER') {
+        inp.down = true;
+        inp.rp = true;
+        this.aiAction = 'NEUTRAL';
+      } else if (this.aiAction === 'LOW_SWEEP') {
+        inp.down = true;
+        inp.rk = true;
+        this.aiAction = 'NEUTRAL';
+      } else if (this.aiAction === 'HEAVY_KICK') {
+        inp.rk = true;
+        this.aiAction = 'NEUTRAL';
+      } else if (this.aiAction === 'SPECIAL') {
+        inp.sp = true;
+        this.aiAction = 'APPROACH';
+      } else if (this.aiAction === 'SUPER') {
+        inp.down = true;
+        inp.sp = true;
+        this.aiAction = 'NEUTRAL';
+      }
+
+      return inp;
+    }
+
+    startAttack(moveKey) {
+      const move = MOVE_DATA[moveKey];
+      if (!move) return;
+
+      if (move.meterCost && this.meter < move.meterCost) {
+        return;
+      }
+      if (move.meterCost) {
+        this.meter -= move.meterCost;
+      }
+
+      this.state = 'ATTACK';
+      this.currentMove = moveKey;
+      this.moveFrame = 0;
+      this.moveHasHit = false;
+      this.stateFrame = 0;
+
+      if (move.isSuper) {
+        game.superFlashTimer = 26;
+        game.superUser = this;
+        game.hitStop = 12;
+        audio.sfxSuperActivate();
+        spawnParticles(this.x, this.y - 80, this.spec.accentColor, 28, 10, 'SPARK');
+        showAnnouncer(this.spec.superName + '!', this.spec.shortName, 45);
+      } else if (move.isProjectile) {
+        audio.sfxBeam();
+      } else {
+        audio.sfxWhiff();
+      }
+
+      // Slight forward momentum on heavy moves
+      if (this.isGrounded && !move.isProjectile) {
+        this.vx = this.facing * (moveKey === 'RK' || moveKey === 'RP_FINISHER' ? 4.2 : 2.0);
+      }
+    }
+
+    update(opponent) {
+      this.stateFrame++;
+      if (this.invulnTimer > 0) this.invulnTimer--;
+      if (this.comboDisplayTimer > 0) {
+        this.comboDisplayTimer--;
+        if (this.comboDisplayTimer === 0) {
+          this.comboCount = 0;
+          this.comboDamage = 0;
+        }
+      }
+
+      // Smoothly drain white Tekken damage trail bar
+      if (this.trailHp > this.hp) {
+        this.trailHp = Math.max(this.hp, this.trailHp - 4.5);
+      }
+
+      // End-of-round poses
+      if (game.state === 'ROUND_OVER' || game.state === 'MATCH_OVER' || game.state === 'ARCADE_CLEAR') {
+        if (this.hp <= 0) {
+          this.state = 'DEFEAT';
+        } else if (this.isGrounded) {
+          this.state = 'VICTORY';
+        }
+        this.applyPhysics();
+        return;
+      }
+
+      const inp = this.readInputs();
+
+      // Auto-face opponent when idle/walking/crouching/blocking on ground
+      if (this.isGrounded && ['IDLE', 'WALK', 'CROUCH', 'BLOCK'].includes(this.state)) {
+        if (opponent.x > this.x + 6) this.facing = 1;
+        else if (opponent.x < this.x - 6) this.facing = -1;
+      }
+
+      // Handle Hitstun / Knockdown (decrement stateFrame once per active frame)
+      if (this.state === 'HITSTUN') {
+        this.stateFrame = Math.max(0, this.stateFrame - 2);
+        if (this.stateFrame <= 0 && this.isGrounded) {
+          this.state = 'IDLE';
+          this.juggled = false;
+        }
+        this.applyPhysics();
+        return;
+      }
+
+      if (this.state === 'KNOCKDOWN') {
+        if (this.isGrounded && this.vy >= 0) {
+          this.stateFrame = Math.max(0, this.stateFrame - 2);
+          if (this.stateFrame <= 0) {
+            this.state = 'IDLE';
+            this.invulnTimer = 18;
+            this.juggled = false;
+          }
+        }
+        this.applyPhysics();
+        return;
+      }
+
+      // Handle Active Attack State
+      if (this.state === 'ATTACK') {
+        const move = MOVE_DATA[this.currentMove];
+        if (!move) {
+          this.state = this.isGrounded ? 'IDLE' : 'JUMP';
+          this.applyPhysics();
+          return;
+        }
+        this.moveFrame++;
+
+        // Spawn projectile on active startup frame
+        if (move.isProjectile && this.moveFrame === move.startup) {
+          const styleMap = {
+            DOOM: 'DOOM_PLASMA',
+            CAPTAIN_AMERICA: 'CAP_SHIELD',
+            IRON_MAN: 'IRON_BEAM',
+            THOR: 'THOR_BOLT',
+            HULK: 'HULK_BOULDER'
+          };
+          spawnProjectile(
+            this,
+            this.x + this.facing * 56,
+            this.y - 84,
+            this.facing,
+            styleMap[this.charId] || 'DOOM_PLASMA',
+            !!move.isSuper
+          );
+        }
+
+        // Tekken-style Jab Combo Canceling (LP -> LP2 -> RP_FINISHER)
+        if (this.moveHasHit && this.moveFrame >= move.startup + 1) {
+          if (this.currentMove === 'LP' && inp.lp) {
+            this.startAttack('LP2');
+            return;
+          } else if (this.currentMove === 'LP2' && inp.rp) {
+            this.startAttack('RP_FINISHER');
+            return;
+          }
+        }
+
+        // Check melee hitbox
+        if (
+          !move.isProjectile &&
+          !this.moveHasHit &&
+          this.moveFrame >= move.startup &&
+          this.moveFrame < move.startup + move.active
+        ) {
+          this.checkMeleeHit(opponent, move);
+        }
+
+        const totalFrames = move.startup + move.active + move.recovery;
+        if (this.moveFrame >= totalFrames || (this.currentMove === 'AIR_STRIKE' && this.isGrounded && this.moveFrame > 8)) {
+          this.state = this.isGrounded ? 'IDLE' : 'JUMP';
+          this.currentMove = null;
+          this.moveFrame = 0;
+        }
+
+        this.applyPhysics();
+        return;
+      }
+
+      // Handle Dash
+      if (this.state === 'DASH') {
+        this.stateFrame = Math.max(0, this.stateFrame - 2);
+        if (this.stateFrame <= 0) {
+          this.state = 'IDLE';
+        }
+        this.applyPhysics();
+        return;
+      }
+
+      // Handle Block stun countdown
+      if (this.state === 'BLOCK') {
+        this.stateFrame = Math.max(0, this.stateFrame - 2);
+        if (this.stateFrame <= 0) {
+          this.state = 'IDLE';
+        }
+      }
+
+      // Free Movement / Guard / Attack Initiation (only during FIGHT)
+      if (game.state === 'FIGHT') {
+        const holdingBack = (this.facing === 1 && inp.left) || (this.facing === -1 && inp.right);
+        const holdingForward = (this.facing === 1 && inp.right) || (this.facing === -1 && inp.left);
+
+        // Check Attack Inputs first
+        if (!this.isGrounded) {
+          if (inp.rk || inp.sp || inp.lk) {
+            this.startAttack('AIR_STRIKE');
+            this.vy = 11.5;
+            this.vx = this.facing * 6.5;
+            this.applyPhysics();
+            return;
+          } else if (inp.lp || inp.rp) {
+            this.startAttack('LP');
+            this.applyPhysics();
+            return;
+          }
+        } else {
+          if (inp.sp) {
+            if (inp.down && this.meter >= 100) {
+              this.startAttack('SUPER');
+            } else if (this.meter >= 25) {
+              this.startAttack('SPECIAL');
+            } else {
+              // Fallback heavy blow if low meter
+              this.startAttack('RP');
+            }
+            this.applyPhysics();
+            return;
+          }
+          if (inp.lp) {
+            this.startAttack('LP');
+            this.applyPhysics();
+            return;
+          }
+          if (inp.rp) {
+            this.startAttack(inp.down ? 'LAUNCHER' : 'RP');
+            this.applyPhysics();
+            return;
+          }
+          if (inp.lk) {
+            this.startAttack('LK');
+            this.applyPhysics();
+            return;
+          }
+          if (inp.rk) {
+            this.startAttack(inp.down ? 'LOW_SWEEP' : 'RK');
+            this.applyPhysics();
+            return;
+          }
+        }
+
+        // Ground Movement, Crouch, Jump & Dash
+        if (this.isGrounded) {
+          if (inp.dash !== 0) {
+            this.state = 'DASH';
+            this.stateFrame = 11;
+            this.vx = inp.dash * 11.5;
+            spawnParticles(this.x, this.y - 10, '#ffffff', 6, 4, 'SPARK');
+            this.applyPhysics();
+            return;
+          }
+
+          if (inp.up) {
+            this.vy = this.spec.jumpVel;
+            this.y -= 2;
+            this.state = 'JUMP';
+            this.crouching = false;
+            if (holdingForward) this.vx = this.facing * (this.spec.walkSpeed * 1.15);
+            else if (holdingBack) this.vx = -this.facing * (this.spec.walkSpeed * 0.95);
+            else this.vx = 0;
+            this.applyPhysics();
+            return;
+          }
+
+          this.crouching = inp.down;
+          this.blocking = holdingBack;
+
+          if (this.crouching) {
+            this.state = 'CROUCH';
+            this.vx *= 0.6;
+          } else if (holdingForward) {
+            this.state = 'WALK';
+            this.vx = this.facing * this.spec.walkSpeed;
+          } else if (holdingBack) {
+            this.state = 'WALK';
+            this.vx = -this.facing * (this.spec.walkSpeed * 0.78);
+          } else if (this.state !== 'BLOCK') {
+            this.state = 'IDLE';
+            this.vx *= 0.65;
+          }
+        }
+      } else {
+        this.vx *= 0.7;
+        this.crouching = false;
+        this.blocking = false;
+      }
+
+      this.applyPhysics();
+    }
+
+    applyPhysics() {
+      this.x += this.vx;
+      if (!this.isGrounded || this.vy < 0) {
+        this.y += this.vy;
+        this.vy += GRAVITY;
+      }
+
+      if (this.y >= FLOOR_Y) {
+        this.y = FLOOR_Y;
+        this.vy = 0;
+        if (this.state === 'JUMP') {
+          this.state = 'IDLE';
+        }
+      }
+
+      // Stage boundaries
+      if (this.x < STAGE_MIN_X) this.x = STAGE_MIN_X;
+      if (this.x > STAGE_MAX_X) this.x = STAGE_MAX_X;
+
+      // Friction
+      if (this.isGrounded && this.state !== 'WALK' && this.state !== 'DASH') {
+        this.vx *= 0.76;
+      }
+    }
+
+    checkMeleeHit(opponent, move) {
+      if (opponent.invulnTimer > 0) return;
+
+      const reach = move.reach * this.spec.scale;
+      const hitX1 = this.facing === 1 ? this.x : this.x - reach;
+      const hitX2 = this.facing === 1 ? this.x + reach : this.x;
+      const hitY1 = move.height === 'LOW' ? this.y - 52 : this.y - 135;
+      const hitY2 = move.height === 'LOW' ? this.y : this.y - 38;
+
+      const hb = opponent.hurtbox;
+      const overlapX = hitX1 < hb.x + hb.w && hitX2 > hb.x;
+      const overlapY = hitY1 < hb.y + hb.h && hitY2 > hb.y;
+
+      if (overlapX && overlapY) {
+        this.moveHasHit = true;
+        applyCombatImpact(this, opponent, move, (hb.x + hb.w / 2), (hitY1 + hitY2) / 2);
+      }
+    }
+  }
+
+  // ==========================================================================
+  // 7. COMBAT RESOLUTION (BLOCKING, JUGGLES, COUNTER HITS, KO)
+  // ==========================================================================
+  function applyCombatImpact(attacker, defender, move, impactX, impactY) {
+    // Check if defender is actively guarding properly
+    const canGuard = defender.isGrounded &&
+      ['IDLE', 'WALK', 'CROUCH', 'BLOCK'].includes(defender.state) &&
+      defender.blocking;
+
+    let blocked = false;
+    if (canGuard) {
+      if (move.height === 'LOW' && defender.crouching) blocked = true;
+      else if (move.height !== 'LOW' && !defender.crouching) blocked = true;
+    }
+
+    if (blocked) {
+      // Guarded! Chip damage on specials/supers
+      const chip = move.isProjectile ? Math.floor(move.damage * 0.14) : 0;
+      defender.hp = Math.max(1, defender.hp - chip);
+      defender.state = 'BLOCK';
+      defender.stateFrame = move.blockstun;
+      defender.vx = attacker.facing * (move.pushback * 0.75);
+      defender.meter = Math.min(100, defender.meter + 6);
+      attacker.meter = Math.min(100, attacker.meter + 4);
+
+      game.hitStop = Math.max(3, move.hitStop - 2);
+      triggerShake(3, 5);
+      audio.sfxBlock();
+      spawnParticles(impactX, impactY, '#66d9ff', 10, 5, 'SPARK');
+      spawnFloatingText(impactX, impactY - 24, 'BLOCK!', '#66d9ff');
+      return;
+    }
+
+    // Counter-hit bonus if defender was in startup of an attack
+    const isCounter = defender.state === 'ATTACK' && defender.moveFrame <= 10;
+    const damageMult = isCounter ? 1.25 : 1.0;
+    const finalDamage = Math.round(move.damage * damageMult);
+
+    defender.hp = Math.max(0, defender.hp - finalDamage);
+    attacker.meter = Math.min(100, attacker.meter + (move.meterGain || 10));
+    defender.meter = Math.min(100, defender.meter + 8);
+
+    // Update Combo Counter
+    attacker.comboCount++;
+    attacker.comboDamage += finalDamage;
+    attacker.comboDisplayTimer = 75;
+
+    // Knockback & Juggle Physics
+    defender.vx = attacker.facing * move.pushback;
+    if (move.launchY && move.launchY < 0) {
+      defender.vy = defender.juggled ? move.launchY * 0.72 : move.launchY;
+      defender.y -= 4;
+      defender.juggled = true;
+    } else if (!defender.isGrounded) {
+      // Keep airborne foe juggled!
+      defender.vy = -6.8;
+      defender.juggled = true;
+    }
+
+    if (move.knockdown || defender.hp <= 0) {
+      defender.state = 'KNOCKDOWN';
+      defender.stateFrame = 28;
+      if (defender.isGrounded) defender.vy = -5.5;
+    } else {
+      defender.state = 'HITSTUN';
+      defender.stateFrame = move.hitstun;
+    }
+
+    game.hitStop = move.hitStop || 5;
+    triggerShake(move.isSuper ? 14 : move.damage >= 75 ? 8 : 4, move.isSuper ? 16 : 8);
+
+    if (move.damage >= 75 || move.isSuper) {
+      audio.sfxHitHeavy();
+      spawnParticles(impactX, impactY, '#ffd700', 18, 9, 'SPARK');
+      spawnParticles(impactX, impactY, '#ff4d4d', 10, 6, 'RING');
+    } else {
+      audio.sfxHitLight();
+      spawnParticles(impactX, impactY, '#ffffff', 11, 6, 'SPARK');
+    }
+
+    if (isCounter) {
+      spawnFloatingText(impactX, impactY - 35, 'COUNTER HIT!', '#ff922b');
+    } else if (move.juggle) {
+      spawnFloatingText(impactX, impactY - 35, 'LAUNCHER!', '#51cf66');
+    }
+
+    // Check KO
+    if (defender.hp <= 0 && game.state === 'FIGHT') {
+      handleRoundKO(attacker, defender);
+    }
+  }
+
+  function handleRoundKO(winner, loser) {
+    game.state = 'ROUND_OVER';
+    game.stateTimer = 140;
+    game.slowMoTimer = 42;
+    triggerShake(16, 22);
+    audio.sfxAnnouncer('KO');
+
+    const isPerfect = winner.hp === winner.spec.maxHp;
+    showAnnouncer(isPerfect ? 'PERFECT K.O.!' : 'K.O.!', winner.spec.name + ' WINS ROUND ' + game.roundNumber, 125);
+
+    if (winner.slot === 1) game.p1Wins++;
+    else game.p2Wins++;
+  }
+
+  // ==========================================================================
+  // 8. MATCH & ROUND FLOW MANAGEMENT
+  // ==========================================================================
+  function startMatch(p1Id, p2Id, isP2AI = true) {
+    game.p1CharId = p1Id;
+    game.p2CharId = p2Id;
+    game.p1Wins = 0;
+    game.p2Wins = 0;
+    game.roundNumber = 1;
+    game.stageId = ROSTER[p2Id].stage;
+    game.p1 = new Fighter(p1Id, 1, false);
+    game.p2 = new Fighter(p2Id, 2, isP2AI);
+    game.state = 'VS_INTRO';
+    game.stateTimer = 95;
+    audio.startBGM('FIGHT');
+  }
+
+  function beginRound() {
+    game.p1.resetForRound();
+    game.p2.resetForRound();
+    game.projectiles = [];
+    game.particles = [];
+    game.roundTimer = 60;
+    game.timerTick = 0;
+    game.state = 'FIGHT';
+    audio.sfxAnnouncer('ROUND');
+    showAnnouncer('ROUND ' + game.roundNumber, 'FIGHT!', 65);
+    setTimeout(() => {
+      if (game.state === 'FIGHT') audio.sfxAnnouncer('FIGHT');
+    }, 450);
+  }
+
+  // ==========================================================================
+  // 9. PSEUDO-3D RETRO STAGE RENDERERS (PS1 / ARCADE AESTHETIC)
+  // ==========================================================================
+  function drawStageBackground(camOffset) {
+    const stage = game.stageId;
+
+    if (stage === 'CASTLE_DOOM') {
+      // Sky / Gothic Cathedral Backdrop
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, FLOOR_Y);
+      skyGrad.addColorStop(0, '#07130d');
+      skyGrad.addColorStop(0.55, '#112a1c');
+      skyGrad.addColorStop(1, '#1c3b28');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, LOGICAL_W, FLOOR_Y);
+
+      // Moon & Storm Clouds
+      ctx.fillStyle = '#c8f7d4';
+      ctx.beginPath();
+      ctx.arc(740 - camOffset * 0.1, 105, 42, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Parallax Gothic Pillars & Latverian Banners
+      for (let i = -1; i < 6; i++) {
+        const px = i * 220 - (camOffset * 0.35) % 220;
+        // Stone Pillar
+        ctx.fillStyle = '#1b2420';
+        ctx.fillRect(px, 40, 56, FLOOR_Y - 40);
+        ctx.fillStyle = '#293831';
+        ctx.fillRect(px + 8, 40, 14, FLOOR_Y - 40);
+
+        // Latverian Royal Banner
+        ctx.fillStyle = '#0e5c24';
+        ctx.fillRect(px + 88, 75, 76, 175);
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(px + 88, 75, 76, 175);
+
+        // Gold Doom Crest on Banner
+        ctx.fillStyle = '#ffd700';
+        ctx.beginPath();
+        ctx.moveTo(px + 126, 105);
+        ctx.lineTo(px + 148, 155);
+        ctx.lineTo(px + 126, 205);
+        ctx.lineTo(px + 104, 155);
+        ctx.closePath();
+        ctx.fill();
+
+        // Flickering Wall Torch
+        const flicker = Math.sin(game.frame * 0.35 + i) * 4;
+        ctx.fillStyle = '#4a3525';
+        ctx.fillRect(px + 22, 185, 12, 34);
+        ctx.fillStyle = '#ff6b00';
+        ctx.beginPath();
+        ctx.arc(px + 28, 178, 13 + flicker * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffe066';
+        ctx.beginPath();
+        ctx.arc(px + 28, 180, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (stage === 'AVENGERS_TOWER') {
+      // Sunset / Twilight Manhattan Skyline
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, FLOOR_Y);
+      skyGrad.addColorStop(0, '#0c1633');
+      skyGrad.addColorStop(0.5, '#273c75');
+      skyGrad.addColorStop(0.85, '#c23616');
+      skyGrad.addColorStop(1, '#e1b12c');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, LOGICAL_W, FLOOR_Y);
+
+      // Distant City Skyscrapers (Parallax)
+      const buildings = [
+        { x: 30, w: 95, h: 250 }, { x: 140, w: 110, h: 310 },
+        { x: 270, w: 85, h: 220 }, { x: 380, w: 130, h: 340 },
+        { x: 540, w: 95, h: 270 }, { x: 660, w: 120, h: 320 },
+        { x: 800, w: 105, h: 260 }, { x: 920, w: 110, h: 295 }
+      ];
+      buildings.forEach((b, idx) => {
+        const bx = b.x - camOffset * 0.25;
+        ctx.fillStyle = '#11182b';
+        ctx.fillRect(bx, FLOOR_Y - b.h, b.w, b.h);
+        // Lit windows
+        ctx.fillStyle = idx % 2 === 0 ? '#ffd43b' : '#74c0fc';
+        for (let wy = FLOOR_Y - b.h + 18; wy < FLOOR_Y - 30; wy += 24) {
+          for (let wx = bx + 12; wx < bx + b.w - 16; wx += 20) {
+            if ((wx + wy + idx) % 3 !== 0) {
+              ctx.fillRect(wx, wy, 8, 12);
+            }
+          }
+        }
+      });
+
+      // Giant Illuminated "A" Emblem on Avengers Tower
+      const emblemX = 480 - camOffset * 0.35;
+      ctx.strokeStyle = '#4dabf7';
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.arc(emblemX, 165, 62, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#a5d8ff';
+      ctx.font = '900 72px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('A', emblemX, 192);
+    } else {
+      // BIFROST BRIDGE (Cosmic Nebula & Asgardian Stars)
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, FLOOR_Y);
+      skyGrad.addColorStop(0, '#060314');
+      skyGrad.addColorStop(0.5, '#1d0f42');
+      skyGrad.addColorStop(1, '#3b186e');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, LOGICAL_W, FLOOR_Y);
+
+      // Twinkling Cosmic Stars
+      for (let i = 0; i < 45; i++) {
+        const sx = ((i * 197) % LOGICAL_W);
+        const sy = ((i * 89) % (FLOOR_Y - 40));
+        const pulse = 0.5 + 0.5 * Math.sin(game.frame * 0.1 + i);
+        ctx.fillStyle = `rgba(255, 255, 255, ${pulse})`;
+        ctx.fillRect(sx, sy, 3, 3);
+      }
+
+      // Cosmic Nebula Swirl
+      const nebX = 480 - camOffset * 0.2;
+      const nebGrad = ctx.createRadialGradient(nebX, 170, 15, nebX, 170, 210);
+      nebGrad.addColorStop(0, 'rgba(77, 171, 247, 0.55)');
+      nebGrad.addColorStop(0.5, 'rgba(174, 62, 201, 0.28)');
+      nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = nebGrad;
+      ctx.fillRect(0, 0, LOGICAL_W, FLOOR_Y);
+    }
+
+    // Pseudo-3D Tekken Perspective Floor Plane
+    drawPerspectiveFloor(stage, camOffset);
+  }
+
+  function drawPerspectiveFloor(stage, camOffset) {
+    const floorH = LOGICAL_H - FLOOR_Y;
+
+    // Base floor gradient
+    const flGrad = ctx.createLinearGradient(0, FLOOR_Y, 0, LOGICAL_H);
+    if (stage === 'CASTLE_DOOM') {
+      flGrad.addColorStop(0, '#1e2b24');
+      flGrad.addColorStop(1, '#0b120e');
+    } else if (stage === 'AVENGERS_TOWER') {
+      flGrad.addColorStop(0, '#2c3545');
+      flGrad.addColorStop(1, '#12161f');
+    } else {
+      flGrad.addColorStop(0, '#2a2254');
+      flGrad.addColorStop(1, '#110c29');
+    }
+    ctx.fillStyle = flGrad;
+    ctx.fillRect(0, FLOOR_Y, LOGICAL_W, floorH);
+
+    // Rainbow shimmer if Bifrost
+    if (stage === 'BIFROST') {
+      const rainbow = ['#ff6b6b', '#ffa94d', '#ffd43b', '#51cf66', '#339af0', '#845ef7'];
+      rainbow.forEach((col, idx) => {
+        ctx.fillStyle = col;
+        ctx.globalAlpha = 0.22;
+        ctx.fillRect(0, FLOOR_Y + idx * 14, LOGICAL_W, 14);
+      });
+      ctx.globalAlpha = 1.0;
+    }
+
+    // Top horizon trim bar
+    ctx.fillStyle = stage === 'CASTLE_DOOM' ? '#2f9e44' : stage === 'AVENGERS_TOWER' ? '#4dabf7' : '#ffd43b';
+    ctx.fillRect(0, FLOOR_Y - 3, LOGICAL_W, 5);
+
+    // Pseudo-3D Perspective Grid Lines (classic 90s arcade floor)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.lineWidth = 2;
+
+    // Horizontal depth lines
+    [16, 38, 66].forEach((offsetY) => {
+      ctx.beginPath();
+      ctx.moveTo(0, FLOOR_Y + offsetY);
+      ctx.lineTo(LOGICAL_W, FLOOR_Y + offsetY);
+      ctx.stroke();
+    });
+
+    // Perspective vanishing lines radiating from center horizon
+    const vanishX = LOGICAL_W / 2;
+    const vanishY = FLOOR_Y - 120;
+    for (let i = -8; i <= 8; i++) {
+      const topX = vanishX + i * 75 - (camOffset * 0.45) % 75;
+      const dx = topX - vanishX;
+      const bottomX = topX + dx * 0.65;
+      ctx.beginPath();
+      ctx.moveTo(topX, FLOOR_Y);
+      ctx.lineTo(bottomX, LOGICAL_H);
+      ctx.stroke();
+    }
+  }
+
+  // ==========================================================================
+  // 10. ARTICULATED LOW-POLY / PIXEL FIGHTER SPRITE RENDERER
+  // ==========================================================================
+  function drawFighter(f) {
+    ctx.save();
+
+    // Ground Contact Shadow (scales with height from floor)
+    const heightFromFloor = Math.max(0, FLOOR_Y - f.y);
+    const shadowScale = Math.max(0.35, 1 - heightFromFloor / 260);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
+    ctx.beginPath();
+    ctx.ellipse(f.x, FLOOR_Y + 6, 44 * f.spec.scale * shadowScale, 11 * shadowScale, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Hitstun flash effect
+    const isFlashing = (f.state === 'HITSTUN' || f.state === 'KNOCKDOWN') && (game.frame % 4 < 2);
+
+    ctx.translate(f.x, f.y);
+    ctx.scale(f.facing * f.spec.scale, f.spec.scale);
+
+    // Knockdown rotation
+    if (f.state === 'KNOCKDOWN' && f.isGrounded) {
+      ctx.translate(0, -18);
+      ctx.rotate(-Math.PI / 2);
+    } else if (f.state === 'DEFEAT') {
+      ctx.translate(0, -16);
+      ctx.rotate(-Math.PI / 2);
+    }
+
+    const t = game.frame * 0.16;
+    const idleBob = f.isGrounded && f.state === 'IDLE' ? Math.sin(t) * 3.5 : 0;
+    const walkSwing = f.state === 'WALK' ? Math.sin(game.frame * 0.32) * 16 : 0;
+    const crouchDrop = f.crouching ? 34 : 0;
+
+    // Pose angles & limb offsets based on current state/attack
+    let frontArmAngle = -0.35 + Math.sin(t) * 0.08;
+    let backArmAngle = 0.45 - Math.sin(t) * 0.08;
+    let frontArmExtend = 0;
+    let frontLegAngle = walkSwing * 0.03;
+    let backLegAngle = -walkSwing * 0.03;
+    let frontLegExtend = 0;
+    let torsoTilt = 0.06;
+
+    if (f.state === 'BLOCK') {
+      frontArmAngle = -1.25;
+      backArmAngle = -1.05;
+      torsoTilt = -0.14;
+    } else if (f.state === 'HITSTUN') {
+      torsoTilt = -0.32;
+      frontArmAngle = -1.8;
+      backArmAngle = 0.9;
+    } else if (f.state === 'VICTORY') {
+      frontArmAngle = -2.45;
+      backArmAngle = 0.3;
+      torsoTilt = -0.05;
+    } else if (f.state === 'ATTACK' && f.currentMove) {
+      const m = f.currentMove;
+      if (m === 'LP' || m === 'LP2' || m === 'RP' || m === 'RP_FINISHER') {
+        frontArmAngle = -0.05;
+        frontArmExtend = m === 'RP_FINISHER' ? 38 : 28;
+        torsoTilt = 0.22;
+      } else if (m === 'LAUNCHER') {
+        frontArmAngle = -1.45;
+        frontArmExtend = 24;
+        torsoTilt = -0.1;
+      } else if (m === 'LK' || m === 'RK') {
+        frontLegAngle = m === 'RK' ? -1.35 : -0.95;
+        frontLegExtend = 34;
+        torsoTilt = -0.22;
+      } else if (m === 'LOW_SWEEP') {
+        torsoTilt = 0.35;
+        frontLegAngle = -0.25;
+        frontLegExtend = 42;
+      } else if (m === 'AIR_STRIKE') {
+        torsoTilt = 0.48;
+        frontLegAngle = 0.65;
+        frontLegExtend = 32;
+      } else if (m === 'SPECIAL' || m === 'SUPER') {
+        frontArmAngle = -0.1;
+        backArmAngle = -0.15;
+        frontArmExtend = 26;
+        torsoTilt = 0.16;
+      }
+    }
+
+    // --- 1. FLOWING CAPE (DOOM & THOR) ---
+    if (f.charId === 'DOOM' || f.charId === 'THOR') {
+      const capeWave = Math.sin(game.frame * 0.22) * 8;
+      ctx.fillStyle = isFlashing ? '#ffffff' : (f.charId === 'DOOM' ? '#147a32' : '#b81d1d');
+      ctx.beginPath();
+      ctx.moveTo(-12, -118 + crouchDrop + idleBob);
+      ctx.lineTo(-48 - capeWave, -16 + crouchDrop * 0.4);
+      ctx.lineTo(-14, -12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#071a0c';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // --- 2. BACK ARM ---
+    drawLimb(
+      -8, -108 + crouchDrop + idleBob,
+      backArmAngle, 42, 13,
+      isFlashing ? '#ffffff' : f.spec.secondaryColor,
+      isFlashing ? '#ffffff' : f.spec.primaryColor
+    );
+
+    // --- 3. BACK LEG ---
+    drawLimb(
+      -8, -62 + crouchDrop * 0.6,
+      backLegAngle, 56 - crouchDrop * 0.35, 16,
+      isFlashing ? '#ffffff' : f.spec.primaryColor,
+      isFlashing ? '#ffffff' : f.spec.secondaryColor
+    );
+
+    // --- 4. TORSO (Chunky PS1 Polygon Armor) ---
+    ctx.save();
+    ctx.translate(0, -64 + crouchDrop * 0.65 + idleBob);
+    ctx.rotate(torsoTilt);
+
+    // Main chest block
+    ctx.fillStyle = isFlashing ? '#ffffff' : f.spec.primaryColor;
+    ctx.beginPath();
+    ctx.moveTo(-22, 0);
+    ctx.lineTo(22, 0);
+    ctx.lineTo(27, -54);
+    ctx.lineTo(-25, -54);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#0c0f17';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Character Chest Emblem / Armor Details
+    if (!isFlashing) {
+      if (f.charId === 'DOOM') {
+        // Silver cuirass & gold clasps
+        ctx.fillStyle = '#9aa7b8';
+        ctx.fillRect(-16, -48, 32, 34);
+        ctx.fillStyle = '#ffd700';
+        ctx.beginPath();
+        ctx.arc(-14, -44, 5, 0, Math.PI * 2);
+        ctx.arc(14, -44, 5, 0, Math.PI * 2);
+        ctx.fill();
+        // Green tunic belt
+        ctx.fillStyle = '#1fa845';
+        ctx.fillRect(-23, -12, 46, 14);
+      } else if (f.charId === 'IRON_MAN') {
+        // Gold chest plate + glowing cyan Arc Reactor
+        ctx.fillStyle = '#f5b800';
+        ctx.fillRect(-16, -46, 32, 26);
+        ctx.fillStyle = '#5ce1e6';
+        ctx.beginPath();
+        ctx.arc(4, -34, 8, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (f.charId === 'CAPTAIN_AMERICA') {
+        // White star & red/white stripes
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-18, -18, 36, 14);
+        ctx.fillStyle = '#d92626';
+        ctx.fillRect(-12, -18, 8, 14);
+        ctx.fillRect(6, -18, 8, 14);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(2, -36, 8, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (f.charId === 'THOR') {
+        // Asgardian silver discs
+        ctx.fillStyle = '#adb5bd';
+        ctx.beginPath();
+        ctx.arc(-8, -38, 6, 0, Math.PI * 2);
+        ctx.arc(12, -38, 6, 0, Math.PI * 2);
+        ctx.arc(-8, -22, 6, 0, Math.PI * 2);
+        ctx.arc(12, -22, 6, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (f.charId === 'HULK') {
+        // Muscular chest definition + purple shorts
+        ctx.strokeStyle = '#1b6e2d';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-16, -46, 34, 24);
+        ctx.fillStyle = '#5f3dc4';
+        ctx.fillRect(-24, -10, 48, 16);
+      }
+    }
+    ctx.restore();
+
+    // --- 5. FRONT LEG ---
+    drawLimb(
+      8, -60 + crouchDrop * 0.6,
+      frontLegAngle, 58 - crouchDrop * 0.35 + frontLegExtend, 17,
+      isFlashing ? '#ffffff' : f.spec.primaryColor,
+      isFlashing ? '#ffffff' : f.spec.secondaryColor
+    );
+
+    // --- 6. HEAD & MASK / HELMET ---
+    ctx.save();
+    ctx.translate(4, -124 + crouchDrop + idleBob);
+    ctx.rotate(torsoTilt * 0.5);
+
+    if (f.charId === 'DOOM') {
+      // Green Hood
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#1fa845';
+      ctx.beginPath();
+      ctx.arc(0, -10, 19, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#0c0f17';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // Iron Mask Faceplate
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#b8c4d4';
+      ctx.fillRect(-8, -22, 21, 24);
+      ctx.strokeRect(-8, -22, 21, 24);
+      // Glowing Red Eyes
+      ctx.fillStyle = '#ff2a2a';
+      ctx.fillRect(2, -16, 8, 4);
+    } else if (f.charId === 'IRON_MAN') {
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#c91e1e';
+      ctx.fillRect(-13, -26, 26, 26);
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#f5b800';
+      ctx.fillRect(-4, -22, 17, 20);
+      ctx.fillStyle = '#5ce1e6';
+      ctx.fillRect(3, -15, 9, 4);
+    } else if (f.charId === 'CAPTAIN_AMERICA') {
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#1c5bbf';
+      ctx.beginPath();
+      ctx.arc(0, -12, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffd8b1';
+      ctx.fillRect(0, -12, 14, 13);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-3, -24, 6, 7);
+    } else if (f.charId === 'THOR') {
+      // Blonde hair & winged helmet
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#ffd43b';
+      ctx.fillRect(-16, -24, 24, 28);
+      ctx.fillStyle = '#ffd8b1';
+      ctx.fillRect(-4, -20, 18, 20);
+      ctx.fillStyle = '#ced4da';
+      ctx.fillRect(-12, -28, 26, 9);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-10, -24);
+      ctx.lineTo(-22, -36);
+      ctx.lineTo(-4, -28);
+      ctx.fill();
+    } else if (f.charId === 'HULK') {
+      ctx.fillStyle = isFlashing ? '#ffffff' : '#2f9e44';
+      ctx.fillRect(-15, -28, 30, 28);
+      ctx.fillStyle = '#14171a';
+      ctx.fillRect(-16, -32, 32, 9);
+      ctx.fillStyle = '#b2f2bb';
+      ctx.fillRect(3, -18, 9, 4);
+    }
+    ctx.restore();
+
+    // --- 7. FRONT ARM + WEAPONS (CAP SHIELD / THOR MJOLNIR) ---
+    drawLimb(
+      10, -106 + crouchDrop + idleBob,
+      frontArmAngle, 44 + frontArmExtend, 14,
+      isFlashing ? '#ffffff' : f.spec.secondaryColor,
+      isFlashing ? '#ffffff' : f.spec.accentColor,
+      f.charId
+    );
+
+    ctx.restore();
+  }
+
+  function drawLimb(ox, oy, angle, length, thickness, limbColor, cuffColor, charId = null) {
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.rotate(angle);
+
+    ctx.fillStyle = limbColor;
+    ctx.strokeStyle = '#0c0f17';
+    ctx.lineWidth = 2.2;
+    ctx.fillRect(-thickness / 2, 0, thickness, length);
+    ctx.strokeRect(-thickness / 2, 0, thickness, length);
+
+    // Fist / Boot cuff
+    ctx.fillStyle = cuffColor;
+    ctx.fillRect(-thickness / 2 - 2, length - 12, thickness + 4, 14);
+    ctx.strokeRect(-thickness / 2 - 2, length - 12, thickness + 4, 14);
+
+    // Character Signature Props attached to Front Arm
+    if (charId === 'CAPTAIN_AMERICA') {
+      // Vibranium Shield
+      ctx.translate(0, length - 6);
+      ctx.fillStyle = '#d92626';
+      ctx.beginPath();
+      ctx.arc(0, 0, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#1c5bbf';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (charId === 'THOR') {
+      // Mjolnir Hammer
+      ctx.translate(0, length);
+      ctx.fillStyle = '#5c4033';
+      ctx.fillRect(-3, -6, 6, 20);
+      ctx.fillStyle = '#adb5bd';
+      ctx.fillRect(-14, 10, 28, 16);
+      ctx.strokeRect(-14, 10, 28, 16);
+    }
+
+    ctx.restore();
+  }
+
+  // ==========================================================================
+  // 11. PROJECTILES, PARTICLES & TEKKEN HUD RENDERING
+  // ==========================================================================
+  function updateAndDrawProjectiles() {
+    for (let i = game.projectiles.length - 1; i >= 0; i--) {
+      const p = game.projectiles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.spin += 0.35;
+      p.life--;
+
+      const target = p.owner.slot === 1 ? game.p2 : game.p1;
+      const hb = target.hurtbox;
+
+      // Hit check against opponent
+      if (
+        !p.hitDone &&
+        target.invulnTimer <= 0 &&
+        p.x + p.radius > hb.x &&
+        p.x - p.radius < hb.x + hb.w &&
+        p.y + p.radius > hb.y &&
+        p.y - p.radius < hb.y + hb.h
+      ) {
+        p.hitDone = true;
+        const projMove = {
+          damage: p.damage,
+          hitstun: p.isSuper ? 34 : 20,
+          blockstun: p.isSuper ? 18 : 13,
+          pushback: p.isSuper ? 15 : 9,
+          height: 'MID',
+          launchY: p.isSuper ? -11 : 0,
+          knockdown: p.isSuper,
+          isProjectile: true,
+          isSuper: p.isSuper,
+          meterGain: 0,
+          hitStop: p.isSuper ? 10 : 6
+        };
+        applyCombatImpact(p.owner, target, projMove, p.x, p.y);
+        if (!p.isSuper) {
+          game.projectiles.splice(i, 1);
+          continue;
+        }
+      }
+
+      // Draw Projectile
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      if (p.style === 'DOOM_PLASMA') {
+        ctx.fillStyle = p.isSuper ? '#5dff87' : '#2ecc71';
+        ctx.shadowColor = '#2ecc71';
+        ctx.shadowBlur = 16;
+        ctx.fillRect(-p.radius * 1.4, -p.radius * 0.45, p.radius * 2.8, p.radius * 0.9);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-p.radius, -p.radius * 0.2, p.radius * 2, p.radius * 0.4);
+      } else if (p.style === 'CAP_SHIELD') {
+        ctx.rotate(p.spin);
+        ctx.fillStyle = '#d92626';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.radius * 0.68, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1c5bbf';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.radius * 0.36, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.style === 'IRON_BEAM') {
+        ctx.fillStyle = '#5ce1e6';
+        ctx.shadowColor = '#5ce1e6';
+        ctx.shadowBlur = 18;
+        ctx.fillRect(-p.radius * 1.6, -p.radius * 0.5, p.radius * 3.2, p.radius);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-p.radius * 1.2, -p.radius * 0.22, p.radius * 2.4, p.radius * 0.44);
+      } else if (p.style === 'THOR_BOLT') {
+        ctx.strokeStyle = '#74c0fc';
+        ctx.lineWidth = p.isSuper ? 10 : 6;
+        ctx.beginPath();
+        ctx.moveTo(-p.radius, 0);
+        ctx.lineTo(-p.radius * 0.3, -14);
+        ctx.lineTo(p.radius * 0.3, 14);
+        ctx.lineTo(p.radius, 0);
+        ctx.stroke();
+      } else {
+        // HULK_BOULDER
+        ctx.rotate(p.spin * 0.5);
+        ctx.fillStyle = '#69db7c';
+        ctx.strokeStyle = '#1b6e2d';
+        ctx.lineWidth = 3;
+        ctx.fillRect(-p.radius * 0.8, -p.radius * 0.8, p.radius * 1.6, p.radius * 1.6);
+        ctx.strokeRect(-p.radius * 0.8, -p.radius * 0.8, p.radius * 1.6, p.radius * 1.6);
+      }
+      ctx.restore();
+
+      if (p.life <= 0 || p.x < -80 || p.x > LOGICAL_W + 80) {
+        game.projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  function updateAndDrawParticles() {
+    for (let i = game.particles.length - 1; i >= 0; i--) {
+      const pt = game.particles[i];
+      pt.x += pt.vx;
+      pt.y += pt.vy;
+      pt.life--;
+
+      const alpha = Math.max(0, pt.life / pt.maxLife);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      if (pt.type === 'RING') {
+        pt.size += 3.2;
+        ctx.strokeStyle = pt.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = pt.color;
+        ctx.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
+      }
+      ctx.restore();
+
+      if (pt.life <= 0) game.particles.splice(i, 1);
+    }
+
+    for (let i = game.floatingTexts.length - 1; i >= 0; i--) {
+      const ft = game.floatingTexts[i];
+      ft.y -= 1.1;
+      ft.life--;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, ft.life / 18);
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#000';
+      ctx.fillText(ft.text, ft.x + 2, ft.y + 2);
+      ctx.fillStyle = ft.color;
+      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.restore();
+      if (ft.life <= 0) game.floatingTexts.splice(i, 1);
+    }
+  }
+
+  function drawPortraitBox(x, y, size, spec, flip = false) {
+    ctx.save();
+    ctx.fillStyle = '#0d1221';
+    ctx.fillRect(x, y, size, size);
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, size, size);
+
+    ctx.translate(x + size / 2, y + size / 2);
+    if (flip) ctx.scale(-1, 1);
+
+    // Stylized 90s Arcade Character Portrait Icon
+    ctx.fillStyle = spec.primaryColor;
+    ctx.fillRect(-size * 0.36, -size * 0.36, size * 0.72, size * 0.72);
+    ctx.fillStyle = spec.secondaryColor;
+    ctx.fillRect(-size * 0.24, -size * 0.28, size * 0.52, size * 0.54);
+    ctx.fillStyle = spec.eyeColor;
+    ctx.fillRect(2, -8, 14, 5);
+    ctx.restore();
+  }
+
+  function drawTekkenHUD() {
+    const p1 = game.p1;
+    const p2 = game.p2;
+    if (!p1 || !p2) return;
+
+    // Portraits
+    drawPortraitBox(22, 16, 54, p1.spec, false);
+    drawPortraitBox(LOGICAL_W - 76, 16, 54, p2.spec, true);
+
+    const barW = 345;
+    const barH = 24;
+    const p1BarX = 84;
+    const p2BarX = LOGICAL_W - 84 - barW;
+    const barY = 22;
+
+    // Health Bar Backgrounds
+    ctx.fillStyle = '#1b090c';
+    ctx.fillRect(p1BarX - 3, barY - 3, barW + 6, barH + 6);
+    ctx.fillRect(p2BarX - 3, barY - 3, barW + 6, barH + 6);
+
+    // White Tekken Damage-Trailing Bars
+    const p1TrailW = Math.max(0, (p1.trailHp / p1.spec.maxHp) * barW);
+    const p2TrailW = Math.max(0, (p2.trailHp / p2.spec.maxHp) * barW);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(p1BarX + (barW - p1TrailW), barY, p1TrailW, barH);
+    ctx.fillRect(p2BarX, barY, p2TrailW, barH);
+
+    // Active Yellow/Red Health Bars
+    const p1HpRatio = Math.max(0, p1.hp / p1.spec.maxHp);
+    const p2HpRatio = Math.max(0, p2.hp / p2.spec.maxHp);
+    const p1HpW = p1HpRatio * barW;
+    const p2HpW = p2HpRatio * barW;
+
+    const grad1 = ctx.createLinearGradient(0, barY, 0, barY + barH);
+    grad1.addColorStop(0, p1HpRatio < 0.25 ? '#ff4d4d' : '#fff066');
+    grad1.addColorStop(1, p1HpRatio < 0.25 ? '#990000' : '#e69900');
+    ctx.fillStyle = grad1;
+    ctx.fillRect(p1BarX + (barW - p1HpW), barY, p1HpW, barH);
+
+    const grad2 = ctx.createLinearGradient(0, barY, 0, barY + barH);
+    grad2.addColorStop(0, p2HpRatio < 0.25 ? '#ff4d4d' : '#fff066');
+    grad2.addColorStop(1, p2HpRatio < 0.25 ? '#990000' : '#e69900');
+    ctx.fillStyle = grad2;
+    ctx.fillRect(p2BarX, barY, p2HpW, barH);
+
+    // Gold Metallic Borders
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(p1BarX, barY, barW, barH);
+    ctx.strokeRect(p2BarX, barY, barW, barH);
+
+    // Center 60-Second Countdown Timer
+    ctx.fillStyle = '#0d1221';
+    ctx.fillRect(LOGICAL_W / 2 - 42, 14, 84, 44);
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(LOGICAL_W / 2 - 42, 14, 84, 44);
+
+    ctx.font = '900 26px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = game.roundTimer <= 10 ? '#ff3b3b' : '#ffffff';
+    ctx.fillText(String(game.roundTimer).padStart(2, '0'), LOGICAL_W / 2, 46);
+
+    // Fighter Names & Round Win Orbs
+    ctx.font = '11px "Press Start 2P", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(p1.spec.name, p1BarX, 64);
+
+    ctx.textAlign = 'right';
+    ctx.fillText(p2.spec.name, p2BarX + barW, 64);
+
+    // Round Win Orbs (Best of 3)
+    for (let r = 0; r < 2; r++) {
+      ctx.beginPath();
+      ctx.arc(p1BarX + barW - 14 - r * 24, 60, 7, 0, Math.PI * 2);
+      ctx.fillStyle = game.p1Wins > r ? '#5dff87' : '#252b3d';
+      ctx.fill();
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(p2BarX + 14 + r * 24, 60, 7, 0, Math.PI * 2);
+      ctx.fillStyle = game.p2Wins > r ? '#ff4d4d' : '#252b3d';
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Bottom Super / Special Meter Bars
+    drawSuperMeter(26, LOGICAL_H - 28, 310, 16, p1, false);
+    drawSuperMeter(LOGICAL_W - 336, LOGICAL_H - 28, 310, 16, p2, true);
+
+    // Tekken Combo Counter Callouts
+    if (p1.comboCount >= 2 && p1.comboDisplayTimer > 0) {
+      drawComboCallout(115, 145, p1.comboCount, p1.comboDamage, '#5dff87');
+    }
+    if (p2.comboCount >= 2 && p2.comboDisplayTimer > 0) {
+      drawComboCallout(LOGICAL_W - 115, 145, p2.comboCount, p2.comboDamage, '#ff6b6b');
+    }
+  }
+
+  function drawSuperMeter(x, y, w, h, fighter, flip) {
+    ctx.fillStyle = 'rgba(10, 14, 24, 0.88)';
+    ctx.fillRect(x, y, w, h);
+
+    const fillW = (fighter.meter / 100) * w;
+    const isMax = fighter.meter >= 100;
+    const pulseColor = isMax && (game.frame % 10 < 5) ? '#ffffff' : (fighter.slot === 1 ? '#2ecc71' : '#339af0');
+
+    ctx.fillStyle = isMax ? '#ffd700' : pulseColor;
+    if (flip) {
+      ctx.fillRect(x + (w - fillW), y, fillW, h);
+    } else {
+      ctx.fillRect(x, y, fillW, h);
+    }
+
+    // 25% tick marks
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1;
+    for (let q = 1; q <= 3; q++) {
+      const tx = x + (w * q) / 4;
+      ctx.beginPath();
+      ctx.moveTo(tx, y);
+      ctx.lineTo(tx, y + h);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = isMax ? '#ffd700' : '#748ffc';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, w, h);
+
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.textAlign = flip ? 'right' : 'left';
+    ctx.fillStyle = isMax ? '#ffd700' : '#e9ecef';
+    const label = isMax ? 'MAX POWER! [DOWN + SP]' : (fighter.slot === 1 ? 'DOOM METER' : 'AVENGERS METER');
+    ctx.fillText(label, flip ? x + w : x, y - 5);
+  }
+
+  function drawComboCallout(x, y, hits, dmg, color) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.font = '900 22px Orbitron, sans-serif';
+    ctx.fillStyle = '#000';
+    ctx.fillText(hits + ' HIT COMBO!', x + 2, y + 2);
+    ctx.fillStyle = color;
+    ctx.fillText(hits + ' HIT COMBO!', x, y);
+
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText(dmg + ' DAMAGE', x, y + 18);
+    ctx.restore();
+  }
+
+  // ==========================================================================
+  // 12. TITLE SCREEN, CHARACTER SELECT & VICTORY SCREENS
+  // ==========================================================================
+  function updateAndDrawTitle() {
+    // Animated Latverian Storm Background
+    const grad = ctx.createLinearGradient(0, 0, 0, LOGICAL_H);
+    grad.addColorStop(0, '#07140d');
+    grad.addColorStop(0.55, '#10291b');
+    grad.addColorStop(1, '#080b12');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+    // Retro 3D Perspective Grid Floor
+    drawPerspectiveFloor('CASTLE_DOOM', game.frame * 1.5);
+
+    // Dramatic Emblem Glow
+    const glow = ctx.createRadialGradient(LOGICAL_W / 2, 165, 20, LOGICAL_W / 2, 165, 260);
+    glow.addColorStop(0, 'rgba(31, 168, 69, 0.45)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+    // Main Arcade Title Logo
+    ctx.textAlign = 'center';
+    ctx.font = '900 54px Orbitron, sans-serif';
+    ctx.fillStyle = '#000';
+    ctx.fillText('DOCTOR DOOM', LOGICAL_W / 2 + 4, 126);
+    const titleGrad = ctx.createLinearGradient(0, 75, 0, 135);
+    titleGrad.addColorStop(0, '#b2f2bb');
+    titleGrad.addColorStop(0.5, '#2ecc71');
+    titleGrad.addColorStop(1, '#0b5e24');
+    ctx.fillStyle = titleGrad;
+    ctx.fillText('DOCTOR DOOM', LOGICAL_W / 2, 122);
+
+    ctx.font = '900 24px Orbitron, sans-serif';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText('IRON FIST OF LATVERIA', LOGICAL_W / 2, 162);
+
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.fillStyle = '#adb5bd';
+    ctx.fillText('90s ARCADE EDITION  •  DOOM VS THE AVENGERS', LOGICAL_W / 2, 192);
+
+    // Mode Selection Menu
+    const options = [
+      { label: '1P ARCADE: AVENGERS GAUNTLET', desc: 'Play as Doctor Doom & conquer all 4 Avengers!' },
+      { label: '1P VS CPU: FREE BATTLE', desc: 'Pick any hero or villain against smart AI' },
+      { label: '2P LOCAL VERSUS', desc: 'Two players battle on the same keyboard!' }
+    ];
+
+    if (keysJustPressed['ArrowUp'] || keysJustPressed['KeyW']) {
+      game.titleOption = (game.titleOption + options.length - 1) % options.length;
+      audio.sfxMenuMove();
+    }
+    if (keysJustPressed['ArrowDown'] || keysJustPressed['KeyS']) {
+      game.titleOption = (game.titleOption + 1) % options.length;
+      audio.sfxMenuMove();
+    }
+
+    options.forEach((opt, idx) => {
+      const boxY = 238 + idx * 62;
+      const selected = game.titleOption === idx;
+
+      ctx.fillStyle = selected ? 'rgba(31, 168, 69, 0.35)' : 'rgba(13, 18, 33, 0.82)';
+      ctx.fillRect(LOGICAL_W / 2 - 285, boxY, 570, 48);
+      ctx.strokeStyle = selected ? '#ffd700' : '#3b466b';
+      ctx.lineWidth = selected ? 3 : 2;
+      ctx.strokeRect(LOGICAL_W / 2 - 285, boxY, 570, 48);
+
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillStyle = selected ? '#ffd700' : '#e9ecef';
+      ctx.fillText((selected ? '▶ ' : '') + opt.label, LOGICAL_W / 2, boxY + 22);
+
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillStyle = '#a5d8ff';
+      ctx.fillText(opt.desc, LOGICAL_W / 2, boxY + 39);
+    });
+
+    // Blinking Insert Coin / Press Start Prompt
+    if (game.frame % 40 < 26) {
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillStyle = '#5dff87';
+      ctx.fillText('PRESS ENTER / LP (J) OR CLICK TO START', LOGICAL_W / 2, 468);
+    }
+
+    ctx.font = '9px "Press Start 2P", monospace';
+    ctx.fillStyle = '#868e96';
+    ctx.fillText('CREDIT 02   •   INSERT COIN', LOGICAL_W / 2, 505);
+
+    if (keysJustPressed['Enter'] || keysJustPressed['Space'] || keysJustPressed['KeyJ'] || keysJustPressed['KeyZ']) {
+      confirmTitleSelection();
+    }
+  }
+
+  function confirmTitleSelection() {
+    audio.sfxMenuSelect();
+    if (game.titleOption === 0) {
+      game.mode = 'ARCADE';
+      game.ladderIndex = 0;
+      startMatch('DOOM', ARCADE_LADDER[0], true);
+    } else if (game.titleOption === 1) {
+      game.mode = 'VERSUS_CPU';
+      game.state = 'SELECT';
+      game.selectPhase = 1;
+      game.selectCursorP1 = 0;
+      game.selectCursorP2 = 1;
+    } else {
+      game.mode = 'VERSUS_2P';
+      game.state = 'SELECT';
+      game.selectPhase = 1;
+      game.selectCursorP1 = 0;
+      game.selectCursorP2 = 1;
+    }
+  }
+
+  function updateAndDrawSelect() {
+    ctx.fillStyle = '#0c101d';
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+    ctx.textAlign = 'center';
+    ctx.font = '900 28px Orbitron, sans-serif';
+    ctx.fillStyle = '#ffd700';
+    const header = game.selectPhase === 1
+      ? 'PLAYER 1: SELECT YOUR FIGHTER'
+      : (game.mode === 'VERSUS_2P' ? 'PLAYER 2: SELECT YOUR FIGHTER' : 'SELECT CPU OPPONENT');
+    ctx.fillText(header, LOGICAL_W / 2, 54);
+
+    // Handle Cursor Navigation
+    const moveLeft = keysJustPressed['ArrowLeft'] || keysJustPressed['KeyA'];
+    const moveRight = keysJustPressed['ArrowRight'] || keysJustPressed['KeyD'];
+    const confirm = keysJustPressed['Enter'] || keysJustPressed['Space'] || keysJustPressed['KeyJ'] || keysJustPressed['KeyZ'];
+
+    if (game.selectPhase === 1) {
+      if (moveLeft) {
+        game.selectCursorP1 = (game.selectCursorP1 + ROSTER_KEYS.length - 1) % ROSTER_KEYS.length;
+        audio.sfxMenuMove();
+      }
+      if (moveRight) {
+        game.selectCursorP1 = (game.selectCursorP1 + 1) % ROSTER_KEYS.length;
+        audio.sfxMenuMove();
+      }
+      if (confirm) {
+        audio.sfxMenuSelect();
+        game.selectPhase = 2;
+      }
+    } else {
+      if (moveLeft) {
+        game.selectCursorP2 = (game.selectCursorP2 + ROSTER_KEYS.length - 1) % ROSTER_KEYS.length;
+        audio.sfxMenuMove();
+      }
+      if (moveRight) {
+        game.selectCursorP2 = (game.selectCursorP2 + 1) % ROSTER_KEYS.length;
+        audio.sfxMenuMove();
+      }
+      if (confirm) {
+        audio.sfxMenuSelect();
+        startMatch(
+          ROSTER_KEYS[game.selectCursorP1],
+          ROSTER_KEYS[game.selectCursorP2],
+          game.mode !== 'VERSUS_2P'
+        );
+      }
+    }
+
+    // Draw 5 Roster Cards
+    const cardW = 156;
+    const cardH = 215;
+    const gap = 20;
+    const startX = (LOGICAL_W - (ROSTER_KEYS.length * cardW + (ROSTER_KEYS.length - 1) * gap)) / 2;
+
+    ROSTER_KEYS.forEach((key, idx) => {
+      const spec = ROSTER[key];
+      const cx = startX + idx * (cardW + gap);
+      const cy = 96;
+      const isP1 = game.selectCursorP1 === idx;
+      const isP2 = game.selectPhase === 2 && game.selectCursorP2 === idx;
+
+      ctx.fillStyle = '#161d33';
+      ctx.fillRect(cx, cy, cardW, cardH);
+
+      ctx.strokeStyle = isP1 && isP2 ? '#ffd700' : isP1 ? '#5dff87' : isP2 ? '#ff4d4d' : '#3a466b';
+      ctx.lineWidth = (isP1 || isP2) ? 4 : 2;
+      ctx.strokeRect(cx, cy, cardW, cardH);
+
+      drawPortraitBox(cx + cardW / 2 - 42, cy + 18, 84, spec, false);
+
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(spec.shortName, cx + cardW / 2, cy + 128);
+
+      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.fillStyle = '#a5d8ff';
+      ctx.fillText('HP: ' + spec.maxHp, cx + cardW / 2, cy + 152);
+      ctx.fillStyle = '#ffd43b';
+      ctx.fillText(spec.specialName, cx + cardW / 2, cy + 172);
+
+      if (isP1) {
+        ctx.fillStyle = '#5dff87';
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.fillText('P1', cx + 24, cy + 202);
+      }
+      if (isP2) {
+        ctx.fillStyle = '#ff4d4d';
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.fillText(game.mode === 'VERSUS_2P' ? 'P2' : 'CPU', cx + cardW - 28, cy + 202);
+      }
+    });
+
+    // Bottom Preview Panel (also acts as large touch Confirm button)
+    const p1Spec = ROSTER[ROSTER_KEYS[game.selectCursorP1]];
+    const p2Spec = ROSTER[ROSTER_KEYS[game.selectCursorP2]];
+
+    ctx.fillStyle = 'rgba(20, 27, 46, 0.9)';
+    ctx.fillRect(60, 345, LOGICAL_W - 120, 120);
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(60, 345, LOGICAL_W - 120, 120);
+
+    ctx.textAlign = 'left';
+    ctx.font = '13px "Press Start 2P", monospace';
+    ctx.fillStyle = '#5dff87';
+    ctx.fillText('P1: ' + p1Spec.name, 85, 382);
+    ctx.font = '9px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ced4da';
+    ctx.fillText('SUPER: ' + p1Spec.superName, 85, 408);
+
+    ctx.textAlign = 'center';
+    ctx.font = '900 24px Orbitron, sans-serif';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText('VS', LOGICAL_W / 2, 402);
+
+    ctx.textAlign = 'right';
+    ctx.font = '13px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ff4d4d';
+    ctx.fillText('P2: ' + p2Spec.name, LOGICAL_W - 85, 382);
+    ctx.font = '9px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ced4da';
+    ctx.fillText('SUPER: ' + p2Spec.superName, LOGICAL_W - 85, 408);
+
+    ctx.textAlign = 'center';
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.fillStyle = '#5dff87';
+    ctx.fillText('TAP CARD TO SELECT  •  TAP HERE OR PRESS ENTER TO FIGHT!', LOGICAL_W / 2, 504);
+  }
+
+  function drawVSIntroScreen() {
+    ctx.fillStyle = '#080b14';
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+    // Diagonal Split Slash
+    ctx.fillStyle = '#11381e';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(LOGICAL_W * 0.58, 0);
+    ctx.lineTo(LOGICAL_W * 0.42, LOGICAL_H);
+    ctx.lineTo(0, LOGICAL_H);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#3b1219';
+    ctx.beginPath();
+    ctx.moveTo(LOGICAL_W * 0.58, 0);
+    ctx.lineTo(LOGICAL_W, 0);
+    ctx.lineTo(LOGICAL_W, LOGICAL_H);
+    ctx.lineTo(LOGICAL_W * 0.42, LOGICAL_H);
+    ctx.closePath();
+    ctx.fill();
+
+    const p1 = game.p1.spec;
+    const p2 = game.p2.spec;
+
+    if (game.mode === 'ARCADE') {
+      ctx.textAlign = 'center';
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillStyle = '#ffd700';
+      ctx.fillText(`AVENGERS GAUNTLET — STAGE ${game.ladderIndex + 1} OF ${ARCADE_LADDER.length}`, LOGICAL_W / 2, 55);
+    }
+
+    drawPortraitBox(135, 130, 140, p1, false);
+    drawPortraitBox(LOGICAL_W - 275, 130, 140, p2, true);
+
+    ctx.textAlign = 'center';
+    ctx.font = '900 48px Orbitron, sans-serif';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText('VS', LOGICAL_W / 2, 220);
+
+    ctx.font = '15px "Press Start 2P", monospace';
+    ctx.fillStyle = '#5dff87';
+    ctx.fillText(p1.name, 205, 315);
+    ctx.font = '9px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ced4da';
+    ctx.fillText(p1.title, 205, 342);
+
+    ctx.font = '15px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ff6b6b';
+    ctx.fillText(p2.name, LOGICAL_W - 205, 315);
+    ctx.font = '9px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ced4da';
+    ctx.fillText(p2.title, LOGICAL_W - 205, 342);
+
+    ctx.font = '11px "Press Start 2P", monospace';
+    ctx.fillStyle = '#a5d8ff';
+    ctx.fillText('STAGE: ' + game.stageId.replace('_', ' '), LOGICAL_W / 2, 445);
+
+    game.stateTimer--;
+    if (game.stateTimer <= 0) {
+      beginRound();
+    }
+  }
+
+  function drawMatchOverOverlay() {
+    ctx.fillStyle = 'rgba(6, 9, 18, 0.78)';
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+    const p1Won = game.p1Wins >= 2 || game.p1.hp >= game.p2.hp;
+    const champ = p1Won ? game.p1.spec : game.p2.spec;
+
+    ctx.textAlign = 'center';
+    ctx.font = '900 36px Orbitron, sans-serif';
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText(
+      game.state === 'ARCADE_CLEAR' ? 'DOOM REIGNS SUPREME!' : (champ.name + ' VICTORIOUS!'),
+      LOGICAL_W / 2,
+      140
+    );
+
+    drawPortraitBox(LOGICAL_W / 2 - 55, 168, 110, champ, false);
+
+    ctx.font = '11px "Press Start 2P", monospace';
+    ctx.fillStyle = '#5dff87';
+    ctx.fillText('"' + champ.winQuote + '"', LOGICAL_W / 2, 325);
+
+    if (game.state === 'ARCADE_CLEAR') {
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillStyle = '#a5d8ff';
+      ctx.fillText('ALL AVENGERS DEFEATED! EARTH BELONGS TO LATVERIA!', LOGICAL_W / 2, 375);
+    }
+
+    if (game.frame % 36 < 24) {
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillStyle = '#ffd700';
+      const prompt = (game.mode === 'ARCADE' && !p1Won)
+        ? 'PRESS ENTER TO CONTINUE  •  ESC FOR TITLE'
+        : 'PRESS ENTER / LP (J) TO RETURN TO TITLE';
+      ctx.fillText(prompt, LOGICAL_W / 2, 448);
+    }
+
+    if (keysJustPressed['Enter'] || keysJustPressed['Space'] || keysJustPressed['KeyJ'] || keysJustPressed['KeyZ']) {
+      audio.sfxMenuSelect();
+      if (game.mode === 'ARCADE' && !p1Won && game.state !== 'ARCADE_CLEAR') {
+        // Arcade Continue!
+        startMatch('DOOM', ARCADE_LADDER[game.ladderIndex], true);
+      } else {
+        game.state = 'TITLE';
+        audio.startBGM('TITLE');
+      }
+    }
+  }
+
+  // ==========================================================================
+  // 13. MAIN GAME LOOP (60 FPS FIXED STEP)
+  // ==========================================================================
+  function updateAndRender() {
+    requestAnimationFrame(updateAndRender);
+
+    if (game.paused) return;
+    game.frame++;
+
+    // Slow-motion KO pacing
+    if (game.slowMoTimer > 0) {
+      game.slowMoTimer--;
+      if (game.frame % 2 !== 0) {
+        clearJustPressed();
+        return;
+      }
+    }
+
+    // Hit-stop freeze frames for meaty Tekken impact feel
+    if (game.hitStop > 0) {
+      game.hitStop--;
+      clearJustPressed();
+      return;
+    }
+
+    ctx.save();
+
+    // Screen Shake offset
+    if (game.shakeTime > 0) {
+      game.shakeTime--;
+      const sx = (Math.random() - 0.5) * game.shakeIntensity * 2;
+      const sy = (Math.random() - 0.5) * game.shakeIntensity * 2;
+      ctx.translate(sx, sy);
+      game.shakeIntensity *= 0.9;
+    }
+
+    if (game.state === 'TITLE') {
+      updateAndDrawTitle();
+    } else if (game.state === 'SELECT') {
+      updateAndDrawSelect();
+    } else if (game.state === 'VS_INTRO') {
+      drawVSIntroScreen();
+    } else {
+      // Active Combat, Round Over, or Match Over
+      const p1 = game.p1;
+      const p2 = game.p2;
+
+      // Countdown Timer during FIGHT
+      if (game.state === 'FIGHT') {
+        game.timerTick++;
+        if (game.timerTick >= 60) {
+          game.timerTick = 0;
+          game.roundTimer = Math.max(0, game.roundTimer - 1);
+          if (game.roundTimer === 0) {
+            const winner = p1.hp >= p2.hp ? p1 : p2;
+            const loser = winner === p1 ? p2 : p1;
+            handleRoundKO(winner, loser);
+          }
+        }
+      }
+
+      // Dynamic Camera Tracking & Zoom between fighters
+      const midX = (p1.x + p2.x) / 2;
+      game.cameraX += (midX - game.cameraX) * 0.12;
+      const dist = Math.abs(p1.x - p2.x);
+      const targetZoom = Math.max(0.96, Math.min(1.12, 1.16 - dist / 2400));
+      game.cameraZoom += (targetZoom - game.cameraZoom) * 0.08;
+
+      const camOffset = game.cameraX - LOGICAL_W / 2;
+
+      // Render Stage
+      drawStageBackground(camOffset);
+
+      // Super Move Dramatic Darkening Flash
+      if (game.superFlashTimer > 0) {
+        game.superFlashTimer--;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+      }
+
+      // Update Fighters & Prevent Body Overlap
+      p1.update(p2);
+      p2.update(p1);
+
+      const minSep = 54;
+      const sep = p2.x - p1.x;
+      if (Math.abs(sep) < minSep && p1.isGrounded && p2.isGrounded) {
+        const push = (minSep - Math.abs(sep)) / 2;
+        if (sep >= 0) {
+          p1.x -= push;
+          p2.x += push;
+        } else {
+          p1.x += push;
+          p2.x -= push;
+        }
+      }
+
+      // Render Fighters (draw active attacker on top)
+      if (p1.state === 'ATTACK') {
+        drawFighter(p2);
+        drawFighter(p1);
+      } else {
+        drawFighter(p1);
+        drawFighter(p2);
+      }
+
+      // Projectiles & Particles
+      updateAndDrawProjectiles();
+      updateAndDrawParticles();
+
+      // Tekken Arcade HUD
+      drawTekkenHUD();
+
+      // Update Virtual SP / SUPER Button Glow State
+      const btnTouchSp = document.getElementById('btn-touch-sp');
+      if (btnTouchSp && p1) {
+        btnTouchSp.classList.toggle('super-ready', p1.meter >= 100);
+      }
+
+      // Announcer Banner Text
+      if (game.announcerTimer > 0) {
+        game.announcerTimer--;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = '900 44px Orbitron, sans-serif';
+        ctx.fillStyle = '#000';
+        ctx.fillText(game.announcerText, LOGICAL_W / 2 + 4, 214);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillText(game.announcerText, LOGICAL_W / 2, 210);
+
+        if (game.announcerSub) {
+          ctx.font = '14px "Press Start 2P", monospace';
+          ctx.fillStyle = '#5dff87';
+          ctx.fillText(game.announcerSub, LOGICAL_W / 2, 244);
+        }
+        ctx.restore();
+      }
+
+      // Round Transition State Machine
+      if (game.state === 'ROUND_OVER') {
+        game.stateTimer--;
+        if (game.stateTimer <= 0) {
+          if (game.p1Wins >= 2 || game.p2Wins >= 2) {
+            if (game.mode === 'ARCADE' && game.p1Wins >= 2) {
+              game.ladderIndex++;
+              if (game.ladderIndex >= ARCADE_LADDER.length) {
+                game.state = 'ARCADE_CLEAR';
+              } else {
+                startMatch('DOOM', ARCADE_LADDER[game.ladderIndex], true);
+              }
+            } else {
+              game.state = 'MATCH_OVER';
+            }
+          } else {
+            game.roundNumber++;
+            beginRound();
+          }
+        }
+      } else if (game.state === 'MATCH_OVER' || game.state === 'ARCADE_CLEAR') {
+        drawMatchOverOverlay();
+      }
+    }
+
+    ctx.restore();
+    clearJustPressed();
+  }
+
+  // ==========================================================================
+  // 14. UI TOOLBAR & MODAL EVENT HANDLERS
+  // ==========================================================================
+  const btnAudio = document.getElementById('btn-audio');
+  const btnCrt = document.getElementById('btn-crt');
+  const btnPad = document.getElementById('btn-pad');
+  const btnMoves = document.getElementById('btn-moves');
+  const btnCloseModal = document.getElementById('btn-close-modal');
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const crtOverlay = document.getElementById('crt-overlay');
+  const touchControls = document.getElementById('touch-controls');
+  const portraitHint = document.getElementById('portrait-hint');
+  const btnDismissHint = document.getElementById('btn-dismiss-hint');
+
+  function setPadVisibility(visible) {
+    touchControls.classList.toggle('visible', visible);
+    btnPad.classList.toggle('active', visible);
+    btnPad.textContent = visible ? 'PAD: ON' : 'PAD: OFF';
+  }
+
+  // Always show on-screen arcade controls by default on both desktop and mobile
+  setPadVisibility(true);
+
+  btnAudio.addEventListener('click', () => {
+    const on = audio.toggle();
+    btnAudio.textContent = on ? 'SFX: ON' : 'SFX: OFF';
+    btnAudio.classList.toggle('active', on);
+  });
+
+  btnCrt.addEventListener('click', () => {
+    const hidden = crtOverlay.classList.toggle('hidden');
+    btnCrt.textContent = hidden ? 'CRT: OFF' : 'CRT: ON';
+    btnCrt.classList.toggle('active', !hidden);
+  });
+
+  btnPad.addEventListener('click', () => {
+    const nextState = !touchControls.classList.contains('visible');
+    setPadVisibility(nextState);
+  });
+
+  if (btnDismissHint && portraitHint) {
+    btnDismissHint.addEventListener('click', () => {
+      portraitHint.classList.add('dismissed');
+    });
+  }
+
+  function toggleModal() {
+    const open = modalBackdrop.classList.toggle('open');
+    game.paused = open;
+  }
+
+  btnMoves.addEventListener('click', toggleModal);
+  btnCloseModal.addEventListener('click', toggleModal);
+
+  // Touch & Click Support across Title, Character Select, and Match Over screens
+  function handleCanvasTap(clientX, clientY) {
+    audio.init();
+    const rect = canvas.getBoundingClientRect();
+    // Account for object-fit: contain letterboxing
+    const canvasAspect = LOGICAL_W / LOGICAL_H;
+    const rectAspect = rect.width / rect.height;
+    let renderW = rect.width;
+    let renderH = rect.height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (rectAspect > canvasAspect) {
+      renderW = rect.height * canvasAspect;
+      offsetX = (rect.width - renderW) / 2;
+    } else {
+      renderH = rect.width / canvasAspect;
+      offsetY = (rect.height - renderH) / 2;
+    }
+
+    const tapX = ((clientX - rect.left - offsetX) / renderW) * LOGICAL_W;
+    const tapY = ((clientY - rect.top - offsetY) / renderH) * LOGICAL_H;
+
+    if (game.state === 'TITLE') {
+      if (tapY >= 238 && tapY <= 286) game.titleOption = 0;
+      else if (tapY >= 300 && tapY <= 348) game.titleOption = 1;
+      else if (tapY >= 362 && tapY <= 410) game.titleOption = 2;
+      confirmTitleSelection();
+    } else if (game.state === 'SELECT') {
+      const cardW = 156;
+      const cardH = 215;
+      const gap = 20;
+      const startX = (LOGICAL_W - (ROSTER_KEYS.length * cardW + (ROSTER_KEYS.length - 1) * gap)) / 2;
+
+      if (tapY >= 96 && tapY <= 96 + cardH) {
+        ROSTER_KEYS.forEach((_, idx) => {
+          const cx = startX + idx * (cardW + gap);
+          if (tapX >= cx && tapX <= cx + cardW) {
+            if (game.selectPhase === 1) {
+              game.selectCursorP1 = idx;
+              audio.sfxMenuSelect();
+              game.selectPhase = 2;
+            } else {
+              game.selectCursorP2 = idx;
+              audio.sfxMenuSelect();
+              startMatch(
+                ROSTER_KEYS[game.selectCursorP1],
+                ROSTER_KEYS[game.selectCursorP2],
+                game.mode !== 'VERSUS_2P'
+              );
+            }
+          }
+        });
+      } else if (tapY >= 345) {
+        keysJustPressed['Enter'] = true;
+      }
+    } else if (game.state === 'MATCH_OVER' || game.state === 'ARCADE_CLEAR') {
+      keysJustPressed['Enter'] = true;
+    }
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    handleCanvasTap(e.clientX, e.clientY);
+  });
+
+  // Boot the Arcade Cabinet
+  window.onload = function () {
+    updateAndRender();
+  };
+})();
+</script>
+</body>
+</html>
